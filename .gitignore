@@ -1,0 +1,13 @@
+# Folder virtual environment
+venv/
+
+# File konfigurasi rahasia
+.env
+
+# File atau cache Python
+_pycache_/
+*.pyc
+
+# File sistem
+.DS_Store
+Thumbs.db

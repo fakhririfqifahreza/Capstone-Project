@@ -1,0 +1,138 @@
+body {
+  min-height: 100vh;
+  background-color: #ededef;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+}
+
+.kontainer-register {
+  padding: 40px;
+  box-sizing: border-box;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Alert Box Style */
+.alert-box {
+  position: fixed;
+  top: 20px; /* Atur jarak dari atas */
+  left:53%; /* Atur jarak dari kanan */
+  transform: translateX(-50%);
+  background: red;
+  color: #fff;
+  text-align: center;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  max-width: 80%; /* Menentukan ukuran maksimal kotak alert */
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.alert-box.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+}
+
+.alert-box i {
+  font-size: 1.5rem;
+  animation: glow 1.5s infinite alternate;
+}
+
+/* Icon Glow Animation */
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(255, 255, 255, 0.6);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+      0 0 30px rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .alert-box {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    gap: 10px;
+  }
+}
+
+.form-register {
+  background-color: #726a3b;
+  border-top-right-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  min-height: 300px;
+  box-shadow: 0px 2px 7px 0px #eae9df;
+}
+
+.form-register label {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.register-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: #726a3b;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* text-shadow: 0 2px 4px rgba(238, 185, 27, 0.4); */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.3s;
+}
+
+.register-subtitle {
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  color: #aab396;
+  opacity: 1;
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.7s;
+}
+
+.btn {
+  background: #aab396;
+  font-size: 1.2em;
+  color: white;
+  font-weight: 500;
+  box-shadow: 1px 1px 5px rgb(140, 112, 35);
+  transition: 0.5s;
+}
+.btn:hover {
+  box-shadow: 0px 0px 8px #fff;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 2px 4px rgba(255, 126, 95, 0.4),
+      0 0 10px rgba(255, 126, 95, 0.2), 0 0 20px rgba(255, 126, 95, 0.1);
+  }
+  to {
+    text-shadow: 0 2px 4px rgba(255, 126, 95, 0.6),
+      0 0 15px rgba(255, 126, 95, 0.4), 0 0 30px rgba(255, 126, 95, 0.3);
+  }
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

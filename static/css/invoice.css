@@ -1,0 +1,236 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  /*navbar*/
+  .navbar {
+    background-color: #4b3c1b;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    /* border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px; */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    transition: all 0.4s ease-in-out;
+    opacity: 1;
+  }
+  
+  .navbar:hover {
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  .navbar-brand {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    color: #ffbf00;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    text-shadow: 2px 0px 2px white;
+  }
+  
+  .navbar-brand:hover {
+    color: #ffffff;
+    text-shadow: 2px 0px 2px #ffbf00;
+  }
+  
+  .navbar-toggler {
+    background-color: #ffbf00;
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    transition: all 0.6s ease;
+  }
+  
+  .navbar-toggler:hover {
+    background-color: #ffd106;
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%2850, 50, 50, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+  
+  .nav-link {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.1rem;
+    transition: color 0.3s ease, transform 0.3s ease, padding 0.2s ease;
+    padding: 8px 20px;
+    border-radius: 5px;
+    position: relative;
+    text-transform: uppercase;
+    /* margin: 0 10px; */
+    /* font-size: 1.06rem; Ukuran lebih kecil */
+    margin-right: 5px; /* Jarak ikon dengan teks */
+    vertical-align: middle; /* Menyesuaikan posisi vertikal */
+  }
+  
+  .nav-link:hover {
+    color: rgb(248, 220, 5);
+    font-weight: 500;
+  }
+  
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 3px;
+    background-color: #ffbf00;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  .nav-link.active {
+    color: #4b3c1b;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .collapse {
+    transition: height 0.5s ease-in-out;
+  }
+  
+  /* Bagian Invoice */
+  .invoice-container {
+    padding: 20px;
+  }
+  .invoice-header, .invoice-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+  }
+  .invoice-header h3{
+    color: #ffbf00;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  .table th, .table td {
+    text-align: center;
+  }
+  .total-row {
+    font-weight: bold;
+  }
+  .address-box, .total-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    min-height: 50px;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+  
+  .status.completed {
+    background-color: #00ac28; /* Hijau */
+  }
+  
+  .status.unpaid {
+    background-color: #ff0019; /* Merah */
+  }
+  
+  .status.processing {
+    background-color: #ffc107; /* Kuning */
+  }
+  
+
+  .popup-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .popup-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  .popup-content table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .popup-content table th,
+  .popup-content table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  
+  .popup-content h3 {
+    margin-top: 0;
+  }
+  
+  #footer {
+    background-color: #4b3c1b;
+    color: white;
+    padding-top: 30px;
+    padding-bottom: 10px;
+    font-family: "Montserrat", sans-serif;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+  
+  .footer h5 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffbf00;
+  }
+  
+  .footer p {
+    font-size: 13px;
+    letter-spacing: 1px;
+    /* padding-bottom: 5px; */
+  }
+  
+  .footer .lead {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  
+  .footer ul {
+    margin: 10px;
+    font-family: "Montserrat", sans-serif;
+  }
+  
+  .footer li a {
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  
+  .footer .copy-right {
+    font-size: 20px;
+  }
+  

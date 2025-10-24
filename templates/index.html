@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta property="og:title" content="BATIK SANGGABUANA KARAWANG" />
+  <meta property="og:description" content="A collection of my words" />
+  <meta property="og:image" content="{{url_for('static', filename='asset/logo.png')}}" />
+
+  <title>Batik Sanggabuana Karawang</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}  " />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="path/to/sweetalert2.min.js"></script> <!-- Pastikan SweetAlert sudah dimuat -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <!-- Nav Start -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('homepage') }}">Batik Karawang</a>
+      <button class="navbar-toggler mx-auto mx-sm-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto text-center">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('homepage') }}">
+              <i class="bi bi-house-door-fill fs-6"></i> Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('product') }}">
+              <i class="bi bi-basket-fill fs-6"></i> Product
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">
+              <i class="bi bi-envelope-fill fs-6"></i> Contact
+            </a>
+          </li>
+          {% if session.get('logged_in') %}
+          <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
+            <a class="nav-login" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
+            <a class="nav-login" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
+            <a class="nav-login" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Nav End -->
+
+  <!-- Home Page Start -->
+  <section id="home">
+    <div class="banner">
+      <img src="{{ url_for('static', filename='asset/banner.png') }}" alt="" class="img-fluid" />
+    </div>
+  </section>
+
+  <!-- Home Page End -->
+
+  <!-- Gambar Sejarah Start -->
+
+  <!-- Gambar Sejarah End -->
+
+  <!-- Sejarah Start -->
+  <section id="sejarah" class="p-4">
+    <div class="container">
+      <h1 class="text-center">Sejarah</h1>
+      <hr />
+    </div>
+  </section>
+
+  <!-- Bagian Coklat 1 -->
+  <section class="coklat-section mb-4">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Konten Teks -->
+        <div class="col-lg-8 col-md-7 col-12">
+          <p class="ms-lg-5">
+            Batik Karawang itu ada didasarkan pada sejarah Batik Indonesia
+            yang pernah tercatat pada masa kolonial. Batik yang diberi nama
+            Batik Tarawang tersebut pada tahun 1892 pernah diikutsertakan pada
+            pameran Batik Jawa di Amsterdam yang diselenggarakan oleh seniman
+            pelukis Belanda di Amsterdam.
+          </p>
+        </div>
+        <!-- Gambar -->
+        <div class="col-lg-4 col-md-5 col-12 text-center">
+          <div class="image-container position-relative">
+            <img src="{{ url_for('static', filename='poto-sejarah-batik/batik-kerawang.jpg') }}" alt="Foto Peksiminas"
+              class="img-fluid" />
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- Bagian Kuning 1 -->
+  <section class="kuning-section mb-4">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Gambar -->
+        <div class="col-lg-4 col-md-5 col-12 text-center">
+          <div class="image-container position-relative">
+            <img src="{{ url_for('static', filename='poto-sejarah-batik/images.jpg') }}" alt="Foto Latihan Rutin"
+              class="img-fluid" />
+          </div>
+        </div>
+        <!-- Konten Teks -->
+        <div class="col-lg-8 col-md-7 col-12">
+          <p class="m-lg-5">
+            Batik tersebut dibuat oleh penduduk etnis Tionghoa, keluarga Tan
+            Tjeng Kwat pada tahun 1860 bersama dengan batik lain. Batik
+            Tarawang (batik Tarum) sendiri telah diproduksi oleh Ny. Vincea
+            Hegen, istri pelukis Raden Saleh.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bagian Coklat 2 -->
+  <section class="coklat-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Konten Teks -->
+        <div class="col-lg-8 col-md-7 col-12">
+          <p class="ms-lg-5">
+            Saat ini Batik Karawang memiliki sekitar 40 motif, yang diambil
+            dari beberapa elemen budaya asli Karawang seperti padi, candi
+            jiwa, sungai Citarum, bahkan keunikan tari. Masih banyak motif di
+            sana dan kita pun bisa meminta motif sendiri.
+          </p>
+        </div>
+        <!-- Gambar -->
+        <div class="col-lg-4 col-md-5 col-12 text-center">
+          <div class="image-container position-relative">
+            <img src="{{ url_for('static', filename='poto-sejarah-batik/3.jpg') }}" alt="Foto Peksiminas"
+              class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sejarah End -->
+
+  <!-- About Us Start -->
+  <section id="aboutus">
+    <div class="container">
+      <h1 class="text-center">About Us</h1>
+      <hr />
+      <div class="row-aboutus row d-flex flex-column-reverse flex-md-row align-items-center">
+        <div class="word-aboutus col-12 col-md-8">
+          <h5 class="mx-4">Batik Asli Karawang</h5>
+          <p class="mx-4">
+            Batik Sanggabuana Karawang menghadirkan koleksi batik autentik
+            khas Karawang yang dibuat dengan sentuhan seni tradisional dan
+            kualitas terbaik. Kami berkomitmen untuk menjaga warisan budaya
+            melalui ragam motif yang penuh cerita, mencerminkan keindahan dan
+            kekayaan tradisi nusantara.
+          </p>
+
+          <p class="mx-4">
+            Setiap helai batik yang kami tawarkan merupakan hasil karya tangan
+            terampil pengrajin lokal, diproduksi dengan bahan pilihan yang
+            nyaman dan tahan lama.
+          </p>
+
+          <p class="mx-4">
+            Kami melayani pengiriman ke seluruh Indonesia, dari Sabang sampai
+            Merauke, sehingga Anda dapat menikmati keindahan batik Karawang di
+            mana pun Anda berada.
+          </p>
+        </div>
+        <div class="gambar-aboutus col-12 col-md-4 mb-5 mb-sm-4 mb-md-0">
+          <img src="{{ url_for('static', filename='asset/logo.png') }}" alt="" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About us End -->
+  <!-- Keuntungan Belanja Start -->
+  <section id="kelebihan" class="p-4">
+    <div class="container kelebihan">
+      <h1 class="text-center">Kelebihan Berbelanja Di Kami</h1>
+      <hr />
+    </div>
+    <div class="row d-flex justify-content-center align-items-center flex-column flex-md-row mt-5 g-3 mx-5">
+      <div class="col-12 col-sm-12 col-md-6">
+        <div class="card-kelebihan">
+          <div class="card-body d-flex align-items-center">
+            <img class="gambar.text" src="{{ url_for('static', filename='kelebihan/1.png') }}" alt="" width="70"
+              height="70" />
+            <p class="card-text">
+              Batik yang kami sediakan terjamin 100% keasliannya, karena semua
+              produk langsung dalam pembuatan pada saat pemesanan.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-md-6">
+        <div class="card-kelebihan">
+          <div class="card-body d-flex align-items-center">
+            <img class="gambar.text" src="{{ url_for('static', filename='kelebihan/2.png') }}" alt="" width="70"
+              height="70" />
+            <p class="card-text">
+              Harga yang ditawarkan dijamin paling terjangkau, sesuai dengan
+              kualitas produk seperti di counter resmi.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-md-6">
+        <div class="card-kelebihan">
+          <div class="card-body d-flex align-items-center">
+            <img class="gambar.text" src="{{ url_for('static', filename='kelebihan/3.png') }}" alt="" width="70"
+              height="70" />
+            <p class="card-text">
+              Barang tersedia di stok kami, sehingga pengiriman bisa dilakukan
+              pada hari yang sama.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-md-6">
+        <div class="card-kelebihan">
+          <div class="card-body d-flex align-items-center">
+            <img class="gambar.text" src="{{ url_for('static', filename='kelebihan/4.png') }}" alt="" width="70"
+              height="70" />
+            <p class="card-text">Packing memakai dus dan bubble wrap</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-12 col-md-6">
+        <div class="card-kelebihan">
+          <div class="card-body d-flex align-items-center">
+            <img class="gambar.text" src="{{ url_for('static', filename='kelebihan/7.png') }}" alt="" width="70"
+              height="70" />
+            <p class="card-text">Free bungkus kado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Keuntungan Belanja End -->
+
+  <!-- Product Home Page Start -->
+
+  <section id="product" class="py-5">
+    <div class="container">
+      <h1 class="text-center">Product</h1>
+      <hr />
+      <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <!-- Slide 1 -->
+          <div class="carousel-item active">
+            <div class="row justify-content-center">
+              <!-- Product Card 1 -->
+              <div class="col-sm-6 col-md-4">
+                <div class="card-product">
+                  <div class="card-image">
+                    <img src="{{ url_for('static', filename='product/1.jpg') }}" alt="Produk 1" class="img-fluid" />
+                  </div>
+                  <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Bahan Kain Seragam Batik Modern Motif</h5>
+                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
+                      data-title="Bahan Kain Seragam Batik Modern Motif"
+                      data-description="Deskripsi produk ini adalah kain batik berkualitas tinggi dengan motif modern."
+                      data-image="{{ url_for('static', filename='product/1.jpg') }}">
+                      Lihat Detail
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <!-- Product Card 2 -->
+              <div class="col-sm-6 col-md-4">
+                <div class="card-product">
+                  <div class="card-image">
+                    <img src="{{ url_for('static', filename='product/2.jpg') }}" alt="Produk 2" class="img-fluid" />
+                  </div>
+                  <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Bahan Kain Seragam Batik Modern Hitam</h5>
+                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
+                      data-title="Bahan Kain Seragam Batik Modern Hitam"
+                      data-description="Deskripsi produk ini adalah kain batik hitam berkualitas tinggi dengan motif modern."
+                      data-image="{{ url_for('static', filename='product/2.jpg') }}">
+                      Lihat Detail
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 2 -->
+          <div class="carousel-item">
+            <div class="row justify-content-center">
+              <!-- Product Card 3 -->
+              <div class="col-sm-6 col-md-4">
+                <div class="card-product">
+                  <div class="card-image">
+                    <img src="{{ url_for('static', filename='product/3.jpg') }}" alt="Produk 3" class="img-fluid" />
+                  </div>
+                  <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Bahan Kain Batik Motif Tradisional Karawang</h5>
+                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
+                      data-title="Bahan Kain Batik Motif Tradisional"
+                      data-description="Deskripsi produk ini adalah kain batik dengan motif tradisional khas Karawang."
+                      data-image="{{ url_for('static', filename='product/3.jpg') }}">
+                      Lihat Detail
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4">
+                <div class="card-product">
+                  <div class="card-image">
+                    <img src="{{ url_for('static', filename='product/5.jpg') }}" alt="Produk 5" class="img-fluid" />
+                  </div>
+                  <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">
+                      Bahan Kain Seragam Batik Modern Motif
+                    </h5>
+                    <a href="{{ url_for('static', filename='product/5.jpg') }}" class="button-product mt-3"
+                      data-bs-toggle="modal" data-bs-target="#productModal"
+                      data-title="Bahan Kain Seragam Batik Modern Motif"
+                      data-description="Deskripsi produk ini adalah Kain Seragam Batik Modern Motif khas Karawang."
+                      data-image="{{ url_for('static', filename='product/5.jpg') }}">
+                      Lihat Detail
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Tombol Previous -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <!-- Tombol Next -->
+        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+        <div class="d-flex justify-content-center">
+          <button class="btn btn-outline-warning more">
+            Lihat Selengkapnya
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center">
+            <img src="" id="modalImage" class="img-fluid mb-3" alt="Product Image" />
+          </div>
+          <h5 id="modalTitle"></h5>
+          <p id="modalDescription"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Home Page End -->
+
+  <!-- Contact Start -->
+  <section id="contact">
+    <div class="container text-center">
+      <h1 class="">Contact</h1>
+      <hr />
+    </div>
+    <div class="container contact">
+      <div class="medsos row text-center justify-content-center">
+        <div class="col-12 col-sm-4">
+          <a href="https://www.instagram.com/batikkarawang?igsh=ZXV0cWthMjlsY3E0" target="_blank"
+            style="text-decoration: none; color: inherit">
+            <i class="bi bi-instagram"></i>
+            <p>@batikkarawang</p>
+          </a>
+        </div>
+        <div class="col-12 col-sm-4">
+          <a href="https://www.facebook.com/share/1AWLTimGQB/" target="_blank"
+            style="text-decoration: none; color: inherit">
+            <i class="bi bi-facebook"></i>
+            <p>Workshop Batik Karawang</p>
+          </a>
+        </div>
+        <div class="col-12 col-sm-4">
+          <a href="https://wa.me/+6285972855010" target="_blank" style="text-decoration: none; color: inherit;">
+            <i class="bi bi-whatsapp"></i>
+            <p>+62-859-7295-5010</p>
+          </a>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-6 col-md-3">
+            <a href="https://g.co/kgs/cPwVxvj" target="_blank" style="text-decoration: none; color: inherit">
+              <i class="bi bi-geo-alt-fill"></i>
+              <p class="cap">Batik Putri Sanggabuana</p>
+              <p class="posisi">
+                Dusun Kalijati RT 06/04, Desa Marga Mulya,Kec.Teluk Jambe Timur
+                Kabupaten Karawang,Jawab Barat
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Contact End -->
+
+  <!-- Review Start -->
+  <section id="review">
+    <div class="container">
+      <h1 class="text-center">Review</h1>
+      <hr />
+      {% if error %}
+      <div class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+      {% endif %}
+    </div>
+    <div class="container p-4">
+      <div class="row mx-auto shadow">
+        <form action="/submit_review" method="POST" class="form-review">
+          <div class="mb-4">
+            <label for="reviewName" class="form-label fw-bold">Name:</label>
+            <input type="text" class="form-control" id="reviewName" name="name" placeholder="Enter your name"
+              required />
+          </div>
+          <div class="mb-4">
+            <label for="reviewMessage" class="form-label fw-bold">Review:</label>
+            <textarea class="form-control" id="reviewMessage" name="review" rows="4"
+              placeholder="Write your review here" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-dark w-100 fw-bold" id="submitReview">
+            Submit Review
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <!-- Review End -->
+
+  <!-- Footer Start -->
+
+  <footer id="footer">
+    <div class="container footer">
+      <div class="row d-flex justify-content-between align-items-baseline text-center text-md-start">
+        <div class="col-12 col-md-3">
+          <h5>Tentang Kami</h5>
+          <p>
+            Batik Sanggabuana Karawang Jual Batik | Jual Batik Asli | Jual
+            Batik Original | Batik | Batik Asli | Batik Original | Batik Pria
+            | Batik Wanita | Batik Modern | Batik Tradisional | Batik Premium
+            | Motif Batik Floral | Motif Batik Geometris | Motif Batik
+            Tradisional | Motif Batik Karawang |
+          </p>
+          <p class="lead">Batik Sanggabuana Karawang</p>
+        </div>
+        <div class="col-12 col-md-3">
+          <h5>Pembayaran</h5>
+          <div>
+            <img src="{{ url_for('static', filename='footer-img/bni.png') }}" alt="" class="mb-2" />
+            <p>rek bni: 1720036777 a/n Ucok Subejo</p>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/bri.png') }}" alt="" />
+              <p>rek bri: 00098663 a/n Ucok Subejo</p>
+            </div>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/mandiri.png') }}" alt="" />
+              <p>rek mandiri: 33388686486 a/n Ucok Subejo</p>
+            </div>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/DANA.png') }}" alt="" />
+              <p>DANA: 08385534934 a/n Ucok Subejo</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-3">
+          <h5>INFORMATION</h5>
+          <li><a href="{{ url_for('homepage') }}">Home</a></li>
+          <li><a href="{{ url_for('homepage') }}">Abouts</a></li>
+          <li><a href="{{ url_for('homepage') }}">Contact</a></li>
+          <li><a href="{{ url_for('product') }}">product</a></li>
+        </div>
+      </div>
+      <hr />
+
+      <p class="copy-right text-center">© 2024 TheIntelGen'k</p>
+    </div>
+  </footer>
+  <!-- Footer End -->
+
+  <script src="{{ url_for('static', filename='js/Product.js') }}"></script>
+  <!-- Click Overlay -->
+  <div id="click-overlay"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+</body>
+
+</html>

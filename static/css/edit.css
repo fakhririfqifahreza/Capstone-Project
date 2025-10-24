@@ -1,0 +1,244 @@
+/* Global Styles */
+body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f9f9f9;
+    color: #444444;
+    margin: 0;
+    padding: 0;
+  }
+
+  /*Navbar*/
+  a {
+    color: #fff;
+  }
+  .navbar {
+    background-color: #4b3c1b;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    transition: all 0.4s ease-in-out;
+  }
+  
+  .navbar:hover {
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.4);
+  }
+  
+  .navbar-brand {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    color: #ffbf00;
+    font-size: 1.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    text-shadow: 2px 0px 2px white;
+  }
+  
+  .navbar-brand:hover {
+    color: #ffffff;
+    text-shadow: 2px 0px 2px #ffbf00;
+  }
+  
+  .navbar-toggler {
+    background-color: #ffbf00;
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    transition: all 0.6s ease;
+  }
+  
+  .navbar-toggler:hover {
+    background-color: #ffd106;
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%2850, 50, 50, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+  
+  .nav-link {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.1rem;
+    transition: color 0.3s ease, transform 0.3s ease, padding 0.2s ease;
+    padding: 8px 20px;
+    border-radius: 5px;
+    position: relative;
+    text-transform: uppercase;
+    margin: 0 10px;
+  }
+  
+  .nav-link:hover {
+    color: rgb(248, 220, 5);
+    font-weight: 500;
+  }
+  
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 3px;
+    background-color: #ffbf00;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  .nav-link.active {
+    color: #4b3c1b;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .nav-login,
+  .nav-register {
+    text-decoration: none;
+    line-height: 39px;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin: 0px 22px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  
+  .nav-login {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid yellow;
+    transition: 0.5s;
+    color: #ffbf00;
+  }
+  
+  .nav-login:hover {
+    background-color: #ffbf00;
+    color: #ffffff;
+  }
+  
+  .nav-register {
+    background-color: #ffbf00;
+    padding: 8px;
+    border-radius: 8px;
+    transition: 0.7s;
+  }
+  
+  .nav-register:hover {
+    color: black;
+  }
+  
+  .collapse {
+    transition: height 0.5s ease-in-out;
+  }
+  
+  /* Form Styling */
+  .container h1{
+    color: #ffbf00;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  #editProductForm {
+    background-color: #ffffff;
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  #editProductForm h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #ffbf00;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  
+  #editProductForm label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #826a6a;
+    margin-bottom: 5px;
+  }
+  
+  #editProductForm input,
+  #editProductForm textarea,
+  #editProductForm select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+  }
+  
+  #editProductForm input:focus,
+  #editProductForm textarea:focus,
+  #editProductForm select:focus {
+    outline: none;
+    border-color: #ffbf00;
+    box-shadow: 0px 0px 5px rgba(255, 191, 0, 0.5);
+  }
+  
+  #editProductForm button {
+    background-color: #ffbf00;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  #editProductForm button:hover {
+    background-color: #e6ac00;
+  }
+  
+  /* Cancel Button */
+  #editProductForm .btn-cancel {
+    background-color: #826a6a;
+    color: white;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  #editProductForm .btn-cancel:hover {
+    background-color: #4b3c1b;
+  }
+  
+  /* Validation Message Styling */
+  .validation-message {
+    color: red;
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    #editProductForm {
+      padding: 20px;
+    }
+  
+    #editProductForm h1 {
+      font-size: 20px;
+    }
+  
+    #editProductForm button {
+      font-size: 14px;
+    }
+  }
+  

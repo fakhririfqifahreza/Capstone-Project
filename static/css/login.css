@@ -1,0 +1,164 @@
+body {
+  min-height: 100vh;
+  background-color:  #ededef;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+}
+
+.kontainer-login {
+  padding: 40px;
+  box-sizing: border-box;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.login-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: #726a3b;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.3s;
+}
+
+.login-subtitle {
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  color: #aab396;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.7s;
+}
+
+.form-login {
+  background-color: #726a3b;
+  border-top-right-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  min-height: 300px;
+  box-shadow: 0px 2px 7px 0px #eae9df;
+}
+
+.form-login label {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.btn {
+  background: #aab396;
+  font-size: 1.2em;
+  color: white;
+  font-weight: 500;
+  box-shadow: 1px 1px 5px rgb(140, 112, 35);
+  transition: 0.5s;
+}
+
+.btn:hover {
+  box-shadow: 0px 0px 8px white;
+}
+
+.back-regis {
+  width: 100%;
+  padding: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+
+.back-to-home {
+  background: #aab396;
+  font-size: 1.2em;
+  color: white;
+  font-weight: 500;
+  box-shadow: 1px 1px 5px rgb(140, 112, 35);
+  transition: 0.5s;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 12px;
+  text-decoration: none;
+}
+
+.back-to-home:hover {
+  box-shadow: 0px 0px 8px white;
+}
+
+
+.back:hover,
+.regis:hover {
+  box-shadow: 0px 0px 8px #fff;
+}
+
+.regis {
+  background: linear-gradient(
+    189deg,
+    rgba(226, 110, 31, 1) 0%,
+    rgba(199, 208, 60, 1) 44%,
+    rgba(204, 237, 9, 0.9102001404494382) 100%
+  );
+  font-size: 1.2em;
+  color: white;
+  font-weight: 500;
+  box-shadow: 1px 1px 5px rgb(140, 112, 35);
+  transition: 0.5s;
+  border: none;
+  border-radius: 8px;
+  padding: 7px;
+}
+
+.regis a {
+  text-decoration: none;
+  color: white;
+}
+
+.alert-box {
+  position: fixed;
+  top: 20px; /* Atur jarak dari atas */
+  left:55%; /* Atur jarak dari kanan */
+  transform: translateX(-50%);
+  background: red;
+  color: #fff;
+  text-align: center;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  max-width: 90%; /* Menentukan ukuran maksimal kotak alert */
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.alert-box.show {
+  opacity: 1;
+}
+
+.d-none {
+  display: none;
+}
+@keyframes glow {
+  from {
+    text-shadow: #686c27;
+  }
+  to {
+    text-shadow:#686c27;
+  }
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

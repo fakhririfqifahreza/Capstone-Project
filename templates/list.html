@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>List Product</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/list.css') }}  " />
+  <script src="path/to/sweetalert2.min.js"></script> <!-- Pastikan SweetAlert sudah dimuat -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <!-- Nav Start -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Batik Karawang</a>
+      <button class="navbar-toggler mx-auto mx-sm-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto text-center">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('homepage') }}">
+              <i class="bi bi-house-door-fill"></i> Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('product') }}">
+              <i class="bi bi-basket-fill"></i> Product
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('invoice') }}">
+              <i class="bi bi-clock-fill fs-6"></i> Invoice
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Nav End -->
+
+  <!-- list Start -->
+  <section id="list">
+    <div class="container">
+      <h1 class="text-center">Keranjang Belanja</h1>
+      <hr />
+      <div class="container mt-5">
+        <div class="card text-center">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-6 text-start">Product</div>
+              <div class="col-3 text-center">Quantity</div>
+              <div class="col-3 text-end">Harga</div>
+            </div>
+          </div>
+          <div class="card-body">
+            {% for item in cart_items %}
+            <div class="row align-items-center" data-id="{{ item._id }}">
+              <div class="col-6 text-start d-flex flex-column flex-sm-row">
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" class="img-thumbnail me-3"
+                  style="width: 100px; height: 100px; object-fit: cover" />
+                <div>
+                  <h5 class="mb-1">{{ item.title }}</h5>
+                  <p class="p">Length : 1 x 1 [M]</p>
+                  <button class="btn btn-danger btn-sm remove-button">Hapus</button>
+                </div>
+              </div>
+              <div class="col-3 text-center">
+                <input type="number" class="form-control text-center quantity-input" value="1" min="1"
+                  style="min-width: 50px" />
+              </div>
+              <div class="col-3 text-end">
+                <h5>Rp.{{ item.price }}</h5>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="container mt-4">
+        <div class="d-flex justify-content-between">
+          <h5 id="Ongkir">Biaya Ongkir: Rp.20,000</h5>
+          <h5 id="subtotal">Subtotal: Rp.0</h5>
+          <h5 id="total">Total: Rp.0</h5>
+        </div>
+      </div>
+      <div class="d-flex justify-content-around mt-4 gap-4 gap-sm-0">
+        <button class="btn-hasil">
+          <a href="{{ url_for('product') }}">BACK TO PRODUCT</a>
+        </button>
+        <button class="btn-hasil" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+          CHECKOUT
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Bootstrap -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="
+                background-color: #4b3c1b;
+                color: #fff;
+                border-radius: 15px;
+              ">
+          <div class="modal-header">
+            <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+              style="filter: invert(1)"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="nama" class="form-label">Nama:</label>
+                <input type="text" class="form-control" id="nama" placeholder="Nama Anda" />
+              </div>
+              <div class="mb-3">
+                <label for="provinsi" class="form-label">Provinsi:</label>
+                <select class="form-select" id="provinsi">
+                  <option selected>Pilih Provinsi</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="kota" class="form-label">Kota:</label>
+                <select class="form-select" id="kota" disabled>
+                  <option selected>Pilih Kota</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="ekspedisi" class="form-label">Pilih Ekspedisi:</label>
+                <select class="form-select" id="ekspedisi" disabled>
+                  <option selected>Pilih Ekspedisi</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="alamat" class="form-label">Alamat:</label>
+                <input type="text" class="form-control" id="alamat"
+                  placeholder="(Jalan, Kelurahan, Kecamatan, Kabupaten/Kota, Provinsi)" />
+              </div>
+              <div class="mb-3">
+                <label for="kodepos" class="form-label">Kode Pos:</label>
+                <input type="text" class="form-control" id="kodepos" placeholder="Kode Pos" />
+              </div>
+              <div class="mb-3">
+                <label for="whatsapp" class="form-label">Nomor WhatsApp:</label>
+                <input type="text" class="form-control" id="whatsapp" placeholder="Nomor WhatsApp" />
+              </div>
+              <div class="mb-3">
+                <label for="pembayaran" class="form-label">Metode Pembayaran:</label>
+                <select class="form-select" id="pembayaran">
+                  <option selected>Pilih Metode Pembayaran</option>
+                  <option value="transfer">Transfer Bank</option>
+                  <option value="ewallet">DANA</option>
+                </select>
+              </div>
+              <!-- Area untuk menampilkan gambar -->
+              <div id="payment-details" class="text-center text-warning">
+                <p id="payment-instruction" class="mb-3"></p>
+                <img id="payment-image" src="" alt="" class="img-fluid" style="max-height: 300px; display: none" />
+              </div>
+              <div class="text-center mt-3">
+                <p class="fw-bold text-white">
+                <h5 id="total">Total: Rp.0</h5>
+                </p>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <!-- Submit Button -->
+            <button type="button" class="btn btn-light" style="background-color: #4b3c1b; color: #fff"
+              id="submit-order">SUBMIT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!-- List End -->
+
+  <!-- Footer Start -->
+
+  <footer id="footer">
+    <div class="container footer">
+      <div class="row d-flex justify-content-between align-items-baseline text-center text-md-start">
+        <div class="col-12 col-md-3">
+          <h5>Tentang Kami</h5>
+          <p>
+            Batik Sanggabuana Karawang Jual Batik | Jual Batik Asli | Jual
+            Batik Original | Batik | Batik Asli | Batik Original | Batik Pria
+            | Batik Wanita | Batik Modern | Batik Tradisional | Batik Premium
+            | Motif Batik Floral | Motif Batik Geometris | Motif Batik
+            Tradisional | Motif Batik Karawang |
+          </p>
+          <p class="lead">Batik Sanggabuana Karawang</p>
+        </div>
+        <div class="col-12 col-md-3">
+          <h5>Pembayaran</h5>
+          <div>
+            <img src="{{ url_for('static', filename='footer-img/bni.png') }}" alt="" class="mb-2" />
+            <p>rek bni: 1720036777 a/n Ucok Subejo</p>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/bri.png') }}" alt="" class="mb-2" />
+              <p>rek bri: 00098663 a/n Ucok Subejo</p>
+            </div>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/mandiri.png') }}" alt="" class="mb-2" />
+              <p>rek mandiri: 33388686486 a/n Ucok Subejo</p>
+            </div>
+            <div>
+              <img src="{{ url_for('static', filename='footer-img/DANA.png') }}" alt="" class="mb-2" />
+              <p>DANA: 08385534934 a/n Ucok Subejo</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-3">
+          <h5>INFORMATION</h5>
+          <li><a href="{{ url_for('homepage') }}">Home</a></li>
+          <li><a href="{{ url_for('homepage') }}">Abouts</a></li>
+          <li><a href="{{ url_for('homepage') }}">Contact</a></li>
+          <li><a href="{{ url_for('product') }}">product</a></li>
+        </div>
+      </div>
+      <hr />
+
+      <p class="copy-right text-center">© 2024 TheIntelGen'k</p>
+    </div>
+  </footer>
+  <!-- Footer End -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+    crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/list.js') }}"></script>
+</body>
+
+</html>
