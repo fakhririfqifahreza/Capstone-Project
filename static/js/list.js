@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const removeButtons = document.querySelectorAll(".remove-button");
   const subtotalElement = document.getElementById("subtotal");
   const totalElement = document.getElementById("total");
-  const deliveryCost = 20000; // Biaya pengiriman tetap
+  // deliveryCost kept as fallback (0) — actual ongkir will come from #ekspedisi value
+  let deliveryCost = 0;
 
   // Fungsi untuk menghitung subtotal dan total
   function calculateTotals() {
@@ -13,27 +14,37 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".row.align-items-center").forEach((row) => {
       const quantity =
         parseInt(row.querySelector(".quantity-input").value) || 1;
-      const price = parseInt(
-        row
-          .querySelector(".col-3.text-end h5")
-          .innerText.replace("Rp.", "")
-          .replace(".", "")
-          .trim()
-      );
+      // Bersihkan semua karakter non-digit agar parsing lebih aman (menghapus titik/komma/Rp)
+      const priceText = row
+        .querySelector(".col-3.text-end h5")
+        .innerText.replace(/[^\d]/g, "");
+      const price = parseInt(priceText) || 0;
       subtotal += quantity * price;
     });
 
     // Perbarui subtotal dan total di halaman
     subtotalElement.innerText = `Subtotal: Rp.${subtotal.toLocaleString()}`;
+    // Ambil ongkir dari select ekspedisi bila ada, fallback ke deliveryCost (default 0)
+    const ekspedisiSelect = document.getElementById("ekspedisi");
+    let selectedOngkir = 0;
+    if (ekspedisiSelect && ekspedisiSelect.value) {
+      // nilai option diisi dengan angka (dari API). Bersihkan dulu non-digit.
+      const ongkirText = String(ekspedisiSelect.value).replace(/[^\d]/g, "");
+      selectedOngkir = parseInt(ongkirText) || 0;
+    } else {
+      selectedOngkir = deliveryCost || 0;
+    }
     totalElement.innerText = `Total: Rp.${(
-      subtotal + deliveryCost
+      subtotal + selectedOngkir
     ).toLocaleString()}`;
 
-    // Perbarui total di modal popup
-    const modalTotalElement = document.querySelector("#checkoutModal #total");
+    // Perbarui total di modal popup (menggunakan ongkir yang dipilih)
+    const modalTotalElement =
+      document.querySelector("#checkoutModal #modal-total") ||
+      document.getElementById("modal-total");
     if (modalTotalElement) {
       modalTotalElement.innerText = `Total: Rp.${(
-        subtotal + deliveryCost
+        subtotal + selectedOngkir
       ).toLocaleString()}`;
     }
   }
@@ -188,10 +199,11 @@ document.getElementById("pembayaran").addEventListener("change", async (e) => {
     if (result.data && Array.isArray(result.data)) {
       result.data.forEach((item) => {
         const opt = document.createElement("option");
+        // Simpan nilai cost sebagai angka (tanpa pemformatan). item.cost bisa number.
         opt.value = item.cost;
-        opt.textContent = `${item.name} - ${
-          item.service
-        } (Rp.${item.cost.toLocaleString()})`;
+        opt.textContent = `${item.name} - ${item.service} (Rp.${Number(
+          item.cost
+        ).toLocaleString()})`;
         ekspedisiSelect.appendChild(opt);
       });
       ekspedisiSelect.disabled = false;
@@ -208,108 +220,43 @@ document.getElementById("pembayaran").addEventListener("change", async (e) => {
 
 // === Update total ketika ekspedisi dipilih ===
 document.getElementById("ekspedisi").addEventListener("change", (e) => {
-  const ongkir = parseInt(e.target.value);
-  const subtotalText = document
-    .getElementById("subtotal")
-    .innerText.replace("Subtotal: Rp.", "")
-    .replace(/\./g, "");
-  const subtotal = parseInt(subtotalText);
-  const total = subtotal + ongkir;
+  // Saat user memilih ekspedisi, perbarui tampilan ongkir lalu hitung ulang totals
+  const raw = String(e.target.value || "").replace(/[^\d]/g, "");
+  const ongkir = parseInt(raw) || 0;
 
-  document.getElementById(
-    "Ongkir"
-  ).innerText = `Biaya Ongkir: Rp.${ongkir.toLocaleString()}`;
-  document.getElementById(
-    "total"
-  ).innerText = `Total: Rp.${total.toLocaleString()}`;
+  const ongkirElem = document.getElementById("Ongkir");
+  if (ongkirElem)
+    ongkirElem.innerText = `Biaya Ongkir: Rp.${ongkir.toLocaleString()}`;
 
-  const modalTotal = document.querySelector("#checkoutModal #total");
-  modalTotal.innerText = `Total: Rp.${total.toLocaleString()}`;
+  // update deliveryCost fallback agar calculateTotals juga melihatnya
+  deliveryCost = ongkir;
+
+  // hitung ulang subtotal+total — calculateTotals akan memperbarui #Ongkir, #total, dan modal
+  calculateTotals();
 });
+
+// Pastikan saat modal checkout dibuka, totals terupdate (subtotal + ongkir)
+const checkoutModal = document.getElementById("checkoutModal");
+if (checkoutModal) {
+  // Jika menggunakan Bootstrap modal: listen to show.bs.modal
+  try {
+    checkoutModal.addEventListener("show.bs.modal", () => {
+      calculateTotals();
+    });
+  } catch (e) {
+    // fallback — beberapa implementasi tidak melempar event ini pada element langsung
+  }
+}
+
+// Jika ada tombol dengan id 'checkout' yang membuka modal, pastikan calculateTotals dipanggil saat diklik
+const checkoutBtn = document.getElementById("checkout");
+if (checkoutBtn) {
+  checkoutBtn.addEventListener("click", () => {
+    calculateTotals();
+  });
+}
 
 // === Submit Order ===
-document.getElementById("submit-order").addEventListener("click", async () => {
-  const nama = document.getElementById("nama").value;
-  const alamat = document.getElementById("alamat").value;
-  const kodepos = document.getElementById("kodepos").value;
-  const whatsapp = document.getElementById("whatsapp").value;
-  const pembayaran = document.getElementById("pembayaran").value;
-
-  const cartItems = Array.from(document.querySelectorAll("[data-id]")).map(
-    (row) => {
-      const id = row.getAttribute("data-id");
-      const title = row.querySelector("h5").innerText;
-      const quantity = parseInt(row.querySelector(".quantity-input").value);
-      const price = parseInt(
-        row
-          .querySelector(".col-3.text-end h5")
-          .innerText.replace("Rp.", "")
-          .replace(",", "")
-      );
-      return { id, title, quantity, price };
-    }
-  );
-
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
-  );
-  const ongkirText =
-    document.getElementById("Ongkir").innerText || "Biaya Ongkir: Rp.20000";
-  const ongkir = parseInt(
-    ongkirText.replace("Biaya Ongkir: Rp.", "").replace(/\./g, "")
-  );
-  const amount = subtotal + ongkir;
-  const quantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  const payload = {
-    nama,
-    alamat,
-    kodepos,
-    whatsapp,
-    pembayaran,
-    produk: cartItems,
-    amount,
-    quantity,
-  };
-
-  Swal.fire({
-    title: "Apakah Anda yakin?",
-    text: `Total yang harus dibayar adalah Rp.${amount.toLocaleString(
-      "id-ID"
-    )}`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Order",
-    cancelButtonText: "Batal",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch("/submit_checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const result = await response.json();
-        if (response.ok) {
-          Swal.fire(
-            "Terima Kasih!",
-            "Order Anda berhasil disimpan.",
-            "success"
-          );
-          document.querySelectorAll("[data-id]").forEach((row) => row.remove());
-        } else {
-          Swal.fire("Gagal!", result.message, "error");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        Swal.fire("Gagal!", "Terjadi kesalahan. Silakan coba lagi.", "error");
-      }
-    } else {
-      Swal.fire("Dibatalkan", "Order Anda telah dibatalkan.", "info");
-    }
-  });
-});
 
 document.getElementById("submit-order").addEventListener("click", async () => {
   const nama = document.getElementById("nama").value;
@@ -323,13 +270,12 @@ document.getElementById("submit-order").addEventListener("click", async () => {
     (row) => {
       const id = row.getAttribute("data-id");
       const title = row.querySelector("h5").innerText;
-      const quantity = parseInt(row.querySelector(".quantity-input").value);
-      const price = parseInt(
-        row
-          .querySelector(".col-3.text-end h5")
-          .innerText.replace("Rp.", "")
-          .replace(",", "")
-      );
+      const quantity =
+        parseInt(row.querySelector(".quantity-input").value) || 0;
+      const priceText = row
+        .querySelector(".col-3.text-end h5")
+        .innerText.replace(/[^\d]/g, "");
+      const price = parseInt(priceText) || 0;
       return { id, title, quantity, price };
     }
   );
@@ -338,8 +284,23 @@ document.getElementById("submit-order").addEventListener("click", async () => {
     (sum, item) => sum + item.quantity * item.price,
     0
   );
-  const ongkir = 20000; // Contoh biaya ongkir tetap
-  const amount = subtotal + ongkir; // Total amount
+  // Ambil ongkir dari pilihan ekspedisi jika tersedia.
+  const ekspedisiSelect = document.getElementById("ekspedisi");
+  let selectedOngkirRaw = ekspedisiSelect ? String(ekspedisiSelect.value) : "";
+  selectedOngkirRaw = selectedOngkirRaw.replace(/[^\d]/g, "");
+  let ongkir = parseInt(selectedOngkirRaw) || 0;
+  // Jika ekspedisi belum dipilih atau value tidak tersedia, fallback ke deliveryCost (di-set saat memilih ekspedisi)
+  if (!ongkir && typeof deliveryCost !== "undefined")
+    ongkir = parseInt(deliveryCost) || 0;
+  // Jika masih 0, coba baca dari elemen tampilan "Ongkir" (mis. 'Biaya Ongkir: Rp.20.000')
+  if (!ongkir) {
+    const ongkirElem = document.getElementById("Ongkir");
+    if (ongkirElem) {
+      const txt = ongkirElem.innerText.replace(/[^\d]/g, "");
+      ongkir = parseInt(txt) || 0;
+    }
+  }
+  const amount = subtotal + ongkir; // Total amount (subtotal + ongkir)
   const quantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const payload = {
@@ -350,6 +311,7 @@ document.getElementById("submit-order").addEventListener("click", async () => {
     pembayaran,
     produk: cartItems,
     amount,
+    ongkir,
     quantity,
   };
 

@@ -30,7 +30,7 @@ $(document).ready(function () {
 
   // Handle Approve, Complete, and Reject buttons
   $("#approve-btn").click(function () {
-    updateOrderStatus("Paid");
+    updateOrderStatus("Process");
   });
   $("#complete-btn").click(function () {
     updateOrderStatus("Completed");

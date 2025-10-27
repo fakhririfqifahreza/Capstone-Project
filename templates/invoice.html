@@ -100,12 +100,19 @@
           {% for order in orders %}
           <tr data-invoice-id="{{ order['_id'] }}">
             <td>{{ order['_id'] }}</td>
-            <td>{{ order['tanggal'] }}</td>
+            <td>
+              {% if order['tanggal'] is string %} {{ order['tanggal'] }} {% else
+              %} {{ order['tanggal'].strftime("%Y-%m-%d %H:%M:%S") }} {% endif
+              %}
+            </td>
             <td>{{ order['quantity'] }}</td>
             <td>
-              <span class="status paid"
-                >{{ order.get('status', 'Unknown') }}</span
+              {% set s = order.get('status', 'Unknown') %}
+              <span
+                class="status {% if s == 'Completed' or s == 'Complete' %}completed{% elif s == 'Pending' %}pending{% elif s == 'Process' or s == 'Processing' %}processing{% elif s == 'Cancelled' or s == 'Rejected' %}unpaid{% endif %}"
               >
+                {{ s }}
+              </span>
             </td>
             <td>Rp. {{ "{:,}".format(order['amount']) }}</td>
           </tr>

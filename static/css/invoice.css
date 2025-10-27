@@ -151,6 +151,10 @@ body {
   .status.processing {
     background-color: #ffc107; /* Kuning */
   }
+  .status.pending {
+    background-color: #bdbdbd; /* abu-abu */
+    color: #000;
+  }
   
 
   .popup-container {

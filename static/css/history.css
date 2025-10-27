@@ -111,13 +111,28 @@ body {
   text-align: center;
 }
 .status {
-    background-color: red; /* Warna latar merah untuk semua status */
-    color: white; /* Warna teks agar kontras */
     padding: 5px 10px;
     border-radius: 20px;
     display: inline-block;
     font-weight: bold;
     font-size: 0.9rem;
+    color: white;
+}
+
+/* Status colours */
+.status.completed {
+  background-color: #28a745; /* hijau */
+}
+.status.pending {
+  background-color: #bdbdbd; /* abu-abu */
+  color: #000;
+}
+.status.processing {
+  background-color: #ffc107; /* kuning */
+  color: #000;
+}
+.status.unpaid, .status.cancelled {
+  background-color: #ff4d4f; /* merah */
 }
   
   /* Popup Styling */
