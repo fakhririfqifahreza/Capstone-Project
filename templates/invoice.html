@@ -1,165 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invoice</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/invoice.css') }}  "
+    />
+    <script src="path/to/sweetalert2.min.js"></script>
+    <!-- Pastikan SweetAlert sudah dimuat -->
+  </head>
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/invoice.css') }}  " />
-  <script src="path/to/sweetalert2.min.js"></script> <!-- Pastikan SweetAlert sudah dimuat -->
-</head>
-
-<body>
-
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Batik Karawang</a>
-      <button class="navbar-toggler mx-auto mx-sm-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto text-center">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('homepage') }}">
-              <i class="bi bi-house-door-fill fs-6"></i> Home
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('product') }}">
-              <i class="bi bi-basket-fill fs-6"></i> Product
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('cart') }}">
-              <i class="bi bi-card-list"></i> List
-            </a>
-          </li>
-        </ul>
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('homepage') }}"
+          >Batik Karawang</a
+        >
+        <button
+          class="navbar-toggler mx-auto mx-sm-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto text-center">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('homepage') }}">
+                <i class="bi bi-house-door-fill fs-6"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('product') }}">
+                <i class="bi bi-basket-fill fs-6"></i> Product
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('cart') }}">
+                <i class="bi bi-card-list"></i> List
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
+    </nav>
+    <!-- Invoice Section -->
+    <div class="invoice-container">
+      <!-- Invoice Header -->
+      <div class="invoice-header">
+        <div>
+          <h3>👤 {{ orders[0].nama if orders else "No User" }}</h3>
+          <h5>ADDRESS</h5>
+          <div class="address-box">
+            {{ orders[0].alamat if orders else "No Address" }}
+          </div>
+        </div>
+        <div>
+          <h3>TOTAL INVOICE</h3>
+          <center>
+            <div class="total-box">Rp. {{ "{:,}".format(total_invoice) }}</div>
+          </center>
+        </div>
+      </div>
+
+      <!-- Invoice Table -->
+      <table class="table table-bordered">
+        <thead style="background-color: #4b3c1b; color: white">
+          <tr>
+            <th>Invoice ID</th>
+            <th>Date</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr data-invoice-id="{{ order['_id'] }}">
+            <td>{{ order['_id'] }}</td>
+            <td>{{ order['tanggal'] }}</td>
+            <td>{{ order['quantity'] }}</td>
+            <td>
+              <span class="status paid"
+                >{{ order.get('status', 'Unknown') }}</span
+              >
+            </td>
+            <td>Rp. {{ "{:,}".format(order['amount']) }}</td>
+          </tr>
+          {% endfor %}
+          <tr class="total-row"></tr>
+        </tbody>
+      </table>
     </div>
-  </nav>
-  <!-- Invoice Section -->
-  <div class="invoice-container">
-    <!-- Invoice Header -->
-    <div class="invoice-header">
-      <div>
-        <h3>👤 {{ orders[0].nama if orders else "No User" }}</h3>
-        <h5>ADDRESS</h5>
-        <div class="address-box">{{ orders[0].alamat if orders else "No Address" }}</div>
-      </div>
-      <div>
-        <h3>TOTAL INVOICE</h3>
-        <center>
-          <div class="total-box">Rp. {{ "{:,}".format(total_invoice) }}</div>
-        </center>
-      </div>
-    </div>
 
-    <!-- Invoice Table -->
-    <table class="table table-bordered">
-      <thead style="background-color: #4b3c1b; color: white;">
-        <tr>
-          <th>Invoice ID</th>
-          <th>Date</th>
-          <th>Quantity</th>
-          <th>Status</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for order in orders %}
-        <tr data-invoice-id="{{ order['_id'] }}">
-          <td>{{ order['_id'] }}</td>
-          <td>{{ order['tanggal'] }}</td>
-          <td>{{ order['quantity'] }}</td>
-          <td><span class="status paid">{{ order.get('status', 'Unknown') }}</span></td>
-          <td>Rp. {{ "{:,}".format(order['amount']) }}</td>
-        </tr>
-        {% endfor %}
-        <tr class="total-row">
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-<!-- Pop-Up Modal -->
-<div id="popup" class="popup-container">
-    <div class="popup-content">
+    <!-- Pop-Up Modal -->
+    <div id="popup" class="popup-container">
+      <div class="popup-content">
         <h3>INVOICE</h3>
         <p><strong>Details:</strong></p>
         <table class="table">
-            <thead style="background-color: #4b3c1b; color: white;">
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody id="popup-details"></tbody> <!-- Isi tabel dinamis disini -->
+          <thead style="background-color: #4b3c1b; color: white">
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="popup-details"></tbody>
+          <!-- Isi tabel dinamis disini -->
         </table>
         <button id="close-popup" class="btn btn-secondary">Back</button>
+      </div>
     </div>
-</div>
 
-  <!-- Footer -->
-  <footer id="footer">
-    <div class="container footer">
-      <div class="row d-flex justify-content-between align-items-baseline text-center text-md-start">
-        <div class="col-12 col-md-3">
-          <h5>Tentang Kami</h5>
-          <p>
-            Batik Sanggabuana Karawang Jual Batik | Jual Batik Asli | Jual
-            Batik Original | Batik | Batik Asli | Batik Original | Batik Pria
-            | Batik Wanita | Batik Modern | Batik Tradisional | Batik Premium
-            | Motif Batik Floral | Motif Batik Geometris | Motif Batik
-            Tradisional | Motif Batik Karawang |
-          </p>
-          <p class="lead">Batik Sanggabuana Karawang</p>
-        </div>
-        <div class="col-12 col-md-3">
-          <h5>Pembayaran</h5>
-          <div>
-            <img src="{{ url_for('static', filename='footer-img/bni.png') }}" alt="" class="mb-2" />
-            <p>rek bni: 1720036777 a/n Ucok Subejo</p>
+    <!-- Footer -->
+    <footer id="footer">
+      <div class="container footer">
+        <div
+          class="row d-flex justify-content-between align-items-baseline text-center text-md-start"
+        >
+          <div class="col-12 col-md-3">
+            <h5>Tentang Kami</h5>
+            <p>
+              Batik Sanggabuana Karawang Jual Batik | Jual Batik Asli | Jual
+              Batik Original | Batik | Batik Asli | Batik Original | Batik Pria
+              | Batik Wanita | Batik Modern | Batik Tradisional | Batik Premium
+              | Motif Batik Floral | Motif Batik Geometris | Motif Batik
+              Tradisional | Motif Batik Karawang |
+            </p>
+            <p class="lead">Batik Sanggabuana Karawang</p>
+          </div>
+          <div class="col-12 col-md-3">
+            <h5>Pembayaran</h5>
             <div>
-              <img src="{{ url_for('static', filename='footer-img/bri.png') }}" alt="" />
-              <p>rek bri: 00098663 a/n Ucok Subejo</p>
-            </div>
-            <div>
-              <img src="{{ url_for('static', filename='footer-img/mandiri.png') }}" alt="" />
-              <p>rek mandiri: 33388686486 a/n Ucok Subejo</p>
-            </div>
-            <div>
-              <img src="{{ url_for('static', filename='footer-img/DANA.png') }}" alt="" />
-              <p>DANA: 08385534934 a/n Ucok Subejo</p>
+              <img
+                src="{{ url_for('static', filename='footer-img/bni.png') }}"
+                alt=""
+                class="mb-2"
+              />
+              <p>rek bni: 1720036777 a/n Ucok Subejo</p>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/bri.png') }}"
+                  alt=""
+                />
+                <p>rek bri: 00098663 a/n Ucok Subejo</p>
+              </div>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/mandiri.png') }}"
+                  alt=""
+                />
+                <p>rek mandiri: 33388686486 a/n Ucok Subejo</p>
+              </div>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/DANA.png') }}"
+                  alt=""
+                />
+                <p>DANA: 08385534934 a/n Ucok Subejo</p>
+              </div>
             </div>
           </div>
+          <div class="col-12 col-md-3">
+            <li><a href="{{ url_for('homepage') }}">Home</a></li>
+            <li><a href="{{ url_for('homepage') }}">Abouts</a></li>
+            <li><a href="{{ url_for('homepage') }}">Contact</a></li>
+            <li><a href="{{ url_for('product') }}">product</a></li>
+          </div>
         </div>
-        <div class="col-12 col-md-3">
-          <li><a href="{{ url_for('homepage') }}">Home</a></li>
-          <li><a href="{{ url_for('homepage') }}">Abouts</a></li>
-          <li><a href="{{ url_for('homepage') }}">Contact</a></li>
-          <li><a href="{{ url_for('product') }}">product</a></li>
-        </div>
+        <hr />
+
+        <p class="copy-right text-center">© 2024 TheIntelGen'k</p>
       </div>
-      <hr />
-
-      <p class="copy-right text-center">© 2024 TheIntelGen'k</p>
-    </div>
-  </footer>
-
-</body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="{{ url_for('static', filename='js/invoice.js') }}"></script>
-
+    </footer>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="{{ url_for('static', filename='js/invoice.js') }}"></script>
 </html>

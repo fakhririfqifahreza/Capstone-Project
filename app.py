@@ -233,7 +233,7 @@ def get_ongkir():
     }
 
     response = requests.post(url, headers=headers, data=payload)
-    print("RajaOngkir Response:", response.text)  # ✅ Tambahkan ini
+    print("RajaOngkir Response:", response.text)  
     return jsonify(response.json())
 
 
