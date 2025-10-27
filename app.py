@@ -175,6 +175,36 @@ def filter_products():
 
     return jsonify(products_list)
 
+
+@app.route('/search_products', methods=['GET'])
+def search_products():
+    q = request.args.get('q', '').strip()
+    if not q:
+        # return all products if query empty
+        products = db.products.find()
+    else:
+        # Case-insensitive regex search on title and description
+        import re
+        regex = re.compile(re.escape(q), re.IGNORECASE)
+        products = db.products.find({
+            "$or": [
+                {"title": {"$regex": regex}},
+                {"description": {"$regex": regex}}
+            ]
+        })
+
+    products_list = [
+        {
+            "id": str(p.get("_id")),
+            "title": p.get("title", ""),
+            "description": p.get("description", ""),
+            "price": p.get("price", "0"),
+            "image_url": p.get("image_url", "")
+        }
+        for p in products
+    ]
+    return jsonify(products_list)
+
 @app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
     data = request.json

@@ -1,8 +1,6 @@
 // 1.JS For Modal
 
 $(document).ready(function () {
-
-  
   // Pilih semua tombol "Lihat Detail"
   $(".button-product").on("click", function () {
     // Ambil data dari atribut tombol
@@ -55,32 +53,33 @@ detailButtons.forEach((button) => {
 
 $(document).ready(function () {
   $(".button-product").on("click", function () {
-      const product = {
-          id: $(this).data("id"),
-          title: $(this).data("title"),
-          description: $(this).data("description"),
-          image_url: $(this).data("image"),
-          price: $(this).data("price"),
-      };
+    const product = {
+      id: $(this).data("id"),
+      title: $(this).data("title"),
+      description: $(this).data("description"),
+      image_url: $(this).data("image"),
+      price: $(this).data("price"),
+    };
 
-      $("#modalTitle").text(product.title);
-      $("#modalDescription").text(product.description);
-      $("#modalImage").attr("src", product.image_url);
+    $("#modalTitle").text(product.title);
+    $("#modalDescription").text(product.description);
+    $("#modalImage").attr("src", product.image_url);
 
-      $("#buyButton").off("click").on("click", function () {
-          $.ajax({
-              url: "/add_to_cart",
-              type: "POST",
-              contentType: "application/json",
-              data: JSON.stringify(product),
-              success: function () {
-                  window.location.href = "/list";
-              },
-          });
+    $("#buyButton")
+      .off("click")
+      .on("click", function () {
+        $.ajax({
+          url: "/add_to_cart",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(product),
+          success: function () {
+            window.location.href = "/list";
+          },
+        });
       });
   });
 });
-
 
 $(document).ready(function () {
   $("#productFilter").on("change", function () {
@@ -126,3 +125,117 @@ $(document).ready(function () {
     });
   });
 });
+
+// Search functionality (debounced)
+(function () {
+  const searchInput = document.getElementById("productSearch");
+  const productContainer = document.querySelector(
+    ".row.mt-5.g-4.justify-content-center"
+  );
+  let debounceTimer = null;
+
+  function renderProducts(products, query) {
+    productContainer.innerHTML = "";
+    products.forEach((product) => {
+      // highlight query in title
+      const title = product.title;
+      let titleHtml = title;
+      if (query) {
+        const re = new RegExp(`(${escapeRegExp(query)})`, "ig");
+        titleHtml = title.replace(re, "<mark>$1</mark>");
+      }
+      const productCard = `
+            <div class="col-sm-6 col-md-4">
+              <div class="card-product">
+                <div class="card-image">
+                  <img src="${product.image_url}" alt="${escapeHtml(
+        product.title
+      )}" class="img-fluid" />
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                  <h5 class="card-title">${titleHtml}</h5>
+                  <p class="card-text">Harga: Rp ${product.price}</p>
+                  <button class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
+                    data-id="${
+                      product.id || product._id
+                    }" data-title="${escapeHtml(product.title)}"
+                    data-description="${escapeHtml(
+                      product.description || ""
+                    )}" data-image="${product.image_url}"
+                    data-price="${product.price}">
+                    Lihat Detail
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+      productContainer.insertAdjacentHTML("beforeend", productCard);
+    });
+    // Rebind modal buttons for newly created items
+    document.querySelectorAll(".button-product").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const product = {
+          id: this.getAttribute("data-id"),
+          title: this.getAttribute("data-title"),
+          description: this.getAttribute("data-description"),
+          image_url: this.getAttribute("data-image"),
+          price: this.getAttribute("data-price"),
+        };
+        $("#modalTitle").text(product.title);
+        $("#modalDescription").text(product.description);
+        $("#modalImage").attr("src", product.image_url);
+
+        $("#buyButton")
+          .off("click")
+          .on("click", function () {
+            $.ajax({
+              url: "/add_to_cart",
+              type: "POST",
+              contentType: "application/json",
+              data: JSON.stringify(product),
+              success: function () {
+                window.location.href = "/list";
+              },
+            });
+          });
+      });
+    });
+  }
+
+  function escapeHtml(text) {
+    return (text + "").replace(/[&<>\"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", function (e) {
+      const q = e.target.value.trim();
+      clearTimeout(debounceTimer);
+      // client-side quick filter if there are existing cards
+      debounceTimer = setTimeout(() => {
+        if (!q) {
+          // reload all products (call filter type 'all')
+          $("#productFilter").val("all").trigger("change");
+          return;
+        }
+        // use server-side search for better results
+        $.ajax({
+          url: "/search_products",
+          type: "GET",
+          data: { q },
+          success: function (products) {
+            renderProducts(products, q);
+          },
+          error: function () {
+            console.warn("Search failed");
+          },
+        });
+      }, 300);
+    });
+  }
+})();
