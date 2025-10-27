@@ -170,7 +170,7 @@ document.getElementById("pembayaran").addEventListener("change", async (e) => {
   ).reduce((sum, el) => sum + parseInt(el.value), 0);
   let weight = totalQty * 200;
   if (weight < 1000) weight = 1000;
-  const origin = 329; // ID kota asal toko kamu
+  const origin = 78; // ID kota asal toko kamu
 
   try {
     const response = await fetch("/get_ongkir", {

@@ -221,7 +221,7 @@ def get_ongkir():
 
     url = "https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost"
     headers = {
-        "key": "70f64b196648dd0fb1dd975ba7bb5055",
+        "key": "QCxD0lXI677af0b57426f847nZleM1lb",
         "Content-Type": "application/x-www-form-urlencoded"
     }
     payload = {
