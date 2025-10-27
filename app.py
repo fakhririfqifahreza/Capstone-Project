@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from werkzeug.utils import secure_filename
 from datetime import datetime
+import uuid
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -32,6 +33,68 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+
+def _get_cart_owner():
+    """Return a stable owner identifier for cart items.
+    Priority:
+    - logged in user -> "user:{user_id}"
+    - guest session -> "guest:{uuid}"
+    The value is stored in session for guest so it's stable across requests.
+    """
+    # prefer permanent user id when logged in
+    user_id = session.get('user_id')
+    if user_id:
+        return f"user:{user_id}"
+
+    # fallback to a generated cart session id stored in session
+    cart_sid = session.get('cart_session_id')
+    if not cart_sid:
+        cart_sid = str(uuid.uuid4())
+        session['cart_session_id'] = cart_sid
+    return f"guest:{cart_sid}"
+
+
+def parse_price_to_int(value):
+    """Normalize various price representations to integer rupiah.
+
+    Accepts integers, floats, or strings like "Rp. 1.234.567,89" or "200000".
+    Returns integer (rounded) or 0 on failure.
+    """
+    import re
+
+    if value is None:
+        return 0
+    # If already numeric
+    if isinstance(value, (int,)):
+        return int(value)
+    if isinstance(value, float):
+        return int(round(value))
+
+    s = str(value)
+    # remove currency symbols and whitespace, keep digits, dots, commas and minus
+    s = re.sub(r"[^0-9.,-]", "", s).strip()
+    if not s:
+        return 0
+
+    try:
+        if '.' in s and ',' in s:
+            # assume '.' thousands, ',' decimal
+            s = s.replace('.', '').replace(',', '.')
+        elif '.' in s and ',' not in s:
+            # assume '.' thousands sep
+            s = s.replace('.', '')
+        elif ',' in s and '.' not in s:
+            # assume ',' is decimal separator
+            s = s.replace(',', '.')
+
+        num = float(s)
+        return int(round(num))
+    except Exception:
+        try:
+            return int(float(s.replace(',', '.')))
+        except Exception:
+            return 0
 
 for review in db.reviews.find():
     print(review)
@@ -207,9 +270,26 @@ def search_products():
 
 @app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
-    data = request.json
-    db.cart.insert_one(data)
-    return jsonify({"message": "Product added to cart successfully!"}), 200
+    try:
+        data = request.json or {}
+        owner = _get_cart_owner()
+
+        cart_item = {
+            "owner": owner,
+            "product_id": data.get("id") or data.get("product_id"),
+            "title": data.get("title"),
+            "description": data.get("description"),
+            "image_url": data.get("image_url") or data.get("image"),
+            "price": parse_price_to_int(data.get("price") or 0),
+            "quantity": int(data.get("quantity") or 1),
+            "created_at": datetime.now(),
+        }
+
+        result = db.cart.insert_one(cart_item)
+        return jsonify({"message": "Product added to cart successfully!", "cart_id": str(result.inserted_id)}), 200
+    except Exception as e:
+        print(f"Error in add_to_cart: {e}")
+        return jsonify({"message": "Failed to add product to cart."}), 500
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
@@ -218,7 +298,8 @@ def remove_from_cart():
         product_id = data.get('product_id')
         if not product_id:
             return jsonify({"message": "Product ID not provided"}), 400
-        result = db.cart.delete_one({"_id": ObjectId(product_id)})
+        owner = _get_cart_owner()
+        result = db.cart.delete_one({"_id": ObjectId(product_id), "owner": owner})
         if result.deleted_count > 0:
             return jsonify({"message": "Product successfully removed from cart"})
         else:
@@ -229,7 +310,8 @@ def remove_from_cart():
 
 @app.route("/list")
 def cart():
-    cart_items = list(db.cart.find())
+    owner = _get_cart_owner()
+    cart_items = list(db.cart.find({"owner": owner}))
     return render_template("list.html", cart_items=cart_items)
 
 @app.route("/get_provinsi", methods=["GET"])
@@ -248,10 +330,15 @@ def get_ongkir():
     origin = data.get("origin")
     destination = data.get("destination")
     weight = max(data.get("weight", 1000), 1000)
-
     url = "https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost"
+    # Read API key from environment for security
+    api_key = os.getenv("RAJAONGKIR_KEY")
+    if not api_key:
+        # Return a helpful error so developer knows to set the environment variable
+        return jsonify({"error": "RajaOngkir API key not configured. Set RAJAONGKIR_KEY in .env or environment."}), 500
+
     headers = {
-        "key": "QCxD0lXI677af0b57426f847nZleM1lb",
+        "key": api_key,
         "Content-Type": "application/x-www-form-urlencoded"
     }
     payload = {
@@ -384,7 +471,7 @@ def admin_products():
             "title": title,
             "description": description,
             "image_url": os.path.join('static/uploads', filename).replace("\\","/"),
-            "price": price
+            "price": parse_price_to_int(price)
         }
         db.products.insert_one(product)
 
@@ -410,7 +497,7 @@ def update_product(product_id):
         update_data = {
             "title": title,
             "description": description,
-            "price": price
+            "price": parse_price_to_int(price)
         }
 
         if image and allowed_file(image.filename):

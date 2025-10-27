@@ -14,11 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".row.align-items-center").forEach((row) => {
       const quantity =
         parseInt(row.querySelector(".quantity-input").value) || 1;
-      // Bersihkan semua karakter non-digit agar parsing lebih aman (menghapus titik/komma/Rp)
-      const priceText = row
-        .querySelector(".col-3.text-end h5")
-        .innerText.replace(/[^\d]/g, "");
-      const price = parseInt(priceText) || 0;
+      // Ambil dan parse harga dengan aman, mendukung format lokal seperti "1.234.567,89" atau "Rp. 1.234.567"
+      const priceRaw = row.querySelector(".col-3.text-end h5").innerText || "";
+      const price = parsePrice(priceRaw) || 0;
       subtotal += quantity * price;
     });
 
@@ -47,6 +45,31 @@ document.addEventListener("DOMContentLoaded", () => {
         subtotal + selectedOngkir
       ).toLocaleString()}`;
     }
+  }
+
+  // Robust price parser that understands Indonesian number formats
+  function parsePrice(text) {
+    if (!text) return 0;
+    // Keep only digits, dots, commas and minus sign
+    let s = String(text)
+      .replace(/[^0-9.,-]/g, "")
+      .trim();
+
+    // If there are both '.' and ',' assume '.' is thousands separator and ',' is decimal
+    if (s.indexOf(".") > -1 && s.indexOf(",") > -1) {
+      s = s.replace(/\./g, "").replace(",", ".");
+    } else if (s.indexOf(".") > -1 && s.indexOf(",") === -1) {
+      // If only dots present, assume they are thousands separators
+      s = s.replace(/\./g, "");
+    } else if (s.indexOf(",") > -1 && s.indexOf(".") === -1) {
+      // If only comma present, assume it's decimal separator
+      s = s.replace(/,/g, ".");
+    }
+
+    const num = parseFloat(s);
+    if (isNaN(num)) return 0;
+    // Return rounded integer rupiah value
+    return Math.round(num);
   }
 
   // Event listener untuk mengubah quantity
