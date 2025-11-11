@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const subtotalElement = document.getElementById("subtotal");
   const totalElement = document.getElementById("total");
   // deliveryCost kept as fallback (0) — actual ongkir will come from #ekspedisi value
-  let deliveryCost = 0;
+  // expose as global so code outside this closure can update it (some handlers live outside)
+  window.deliveryCost = window.deliveryCost || 0;
 
   // Fungsi untuk menghitung subtotal dan total
   function calculateTotals() {
@@ -30,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const ongkirText = String(ekspedisiSelect.value).replace(/[^\d]/g, "");
       selectedOngkir = parseInt(ongkirText) || 0;
     } else {
-      selectedOngkir = deliveryCost || 0;
+      // read from global deliveryCost (set when ekspedisi is chosen by other handlers)
+      selectedOngkir = window.deliveryCost || 0;
     }
     totalElement.innerText = `Total: Rp.${(
       subtotal + selectedOngkir
@@ -126,32 +128,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Inisialisasi perhitungan saat halaman dimuat
   calculateTotals();
+  // expose calculateTotals globally so handlers outside DOMContentLoaded can call it
+  window.calculateTotals = calculateTotals;
 
-  // Update payment details based on payment method
+  // Update payment details based on payment method (show small image for DANA/QRIS)
   document.getElementById("pembayaran").addEventListener("change", (event) => {
     const paymentMethod = event.target.value;
+    const instructionEl = document.getElementById("payment-instruction");
+    const imageEl = document.getElementById("payment-image");
     const paymentDetailsElement = document.getElementById("payment-details");
 
-    if (paymentMethod === "transfer") {
-      paymentDetailsElement.innerHTML = `
-        <p>Silakan transfer ke rekening berikut:</p>
-        <p>Rek BNI: 1720036777 a/n Ucok Subejo</p>
-        <p>Rek BRI: 00098663 a/n Ucok Subejo</p>
-        <p>Rek MANDIRI: 33388686486 a/n Ucok Subejo</p>
-        <div class="mb-3">
-          <label for="formFile" class="form-label fw-bold">Untuk Bukti Transfer Bisa Kirim ke WhatsApp, Bisa Cek di Bagian Contact Ya!!</label>
-        </div>
-      `;
-    } else if (paymentMethod === "ewallet") {
-      paymentDetailsElement.innerHTML = `
-        <p>Silakan gunakan QR code berikut untuk pembayaran melalui DANA : 085972855010</p>
-        <div class="mb-3 mt-2">
-          <label for="formFile" class="form-label fw-bold">Untuk Bukti Transfer Bisa Kirim ke WhatsApp, Bisa Cek di Bagian Contact Ya!!</label>
-        </div>
-      `;
+    // clear previous content
+    instructionEl.textContent = "";
+    imageEl.style.display = "none";
+    imageEl.src = "";
+
+    if (paymentMethod === "dana") {
+      instructionEl.innerHTML = `Silakan scan atau gunakan QR code/nomor DANA berikut untuk menyelesaikan pembayaran:<br><strong>085972855010 (DANA)</strong>`;
+      // small centered image; ensure you put dana.jpg into static/asset/
+      imageEl.src = "/static/asset/dana.jpg";
+      imageEl.style.maxHeight = "180px";
+      imageEl.style.display = "block";
+      paymentDetailsElement.classList.add("text-center");
+    } else if (paymentMethod === "qris") {
+      instructionEl.innerHTML = `Silakan scan QRIS bank yang tersedia untuk melakukan pembayaran.`;
+      imageEl.src = "/static/asset/qris.jpg";
+      imageEl.style.maxHeight = "180px";
+      imageEl.style.display = "block";
+      paymentDetailsElement.classList.add("text-center");
     } else {
-      paymentDetailsElement.innerHTML =
-        "<p>Pilih metode pembayaran yang diinginkan.</p>";
+      instructionEl.innerHTML = "Pilih metode pembayaran yang diinginkan.";
+      imageEl.style.display = "none";
+      imageEl.src = "";
     }
   });
 });
@@ -251,8 +259,8 @@ document.getElementById("ekspedisi").addEventListener("change", (e) => {
   if (ongkirElem)
     ongkirElem.innerText = `Biaya Ongkir: Rp.${ongkir.toLocaleString()}`;
 
-  // update deliveryCost fallback agar calculateTotals juga melihatnya
-  deliveryCost = ongkir;
+  // update deliveryCost fallback so calculateTotals reads the correct value
+  window.deliveryCost = ongkir;
 
   // hitung ulang subtotal+total — calculateTotals akan memperbarui #Ongkir, #total, dan modal
   calculateTotals();
@@ -313,8 +321,8 @@ document.getElementById("submit-order").addEventListener("click", async () => {
   selectedOngkirRaw = selectedOngkirRaw.replace(/[^\d]/g, "");
   let ongkir = parseInt(selectedOngkirRaw) || 0;
   // Jika ekspedisi belum dipilih atau value tidak tersedia, fallback ke deliveryCost (di-set saat memilih ekspedisi)
-  if (!ongkir && typeof deliveryCost !== "undefined")
-    ongkir = parseInt(deliveryCost) || 0;
+  if (!ongkir && typeof window.deliveryCost !== "undefined")
+    ongkir = parseInt(window.deliveryCost) || 0;
   // Jika masih 0, coba baca dari elemen tampilan "Ongkir" (mis. 'Biaya Ongkir: Rp.20.000')
   if (!ongkir) {
     const ongkirElem = document.getElementById("Ongkir");

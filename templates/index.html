@@ -16,6 +16,7 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}  " />
   <!-- SweetAlert2 (single include) -->
@@ -49,15 +50,20 @@
             </a>
           </li>
           {% if session.get('logged_in') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">
+              <i class="bi bi-person-fill fs-6"></i> Profile
+            </a>
+          </li>
           <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
-            <a class="nav-login" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-login" href="{{ url_for('logout') }}" onclick="try{sessionStorage.removeItem('logged_in'); localStorage.removeItem('currentUser');}catch(e){}">Logout</a>
           </li>
           {% else %}
           <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
             <a class="nav-login" href="{{ url_for('login') }}">Login</a>
           </li>
           <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
-            <a class="nav-login" href="{{ url_for('register') }}">Register</a>
+            <a class="nav-register" href="{{ url_for('register') }}">Register</a>
           </li>
           {% endif %}
         </ul>
@@ -266,128 +272,137 @@
 
   <section id="product" class="py-5">
     <div class="container">
-      <h1 class="text-center">Product</h1>
-      <hr />
+      <h1 class="text-center mb-2">Produk Kami</h1>
+      <p class="text-center text-muted mb-4">Koleksi batik berkualitas tinggi dengan berbagai motif pilihan</p>
+      <hr class="mb-5" />
+      
+      {% set product_list = products|list %}
+      {% if product_list|length > 2 %}
+      <!-- Carousel for more than 2 products -->
       <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
-          <!-- Slide 1 -->
-          <div class="carousel-item active">
-            <div class="row justify-content-center">
-              <!-- Product Card 1 -->
-              <div class="col-sm-6 col-md-4">
-                <div class="card-product">
+          {% for i in range(0, product_list|length, 2) %}
+          <div class="carousel-item {% if i == 0 %}active{% endif %}">
+            <div class="row justify-content-center g-4">
+              {% for product in product_list[i:i+2] %}
+              <div class="col-sm-12 col-md-6 col-lg-5">
+                <div class="card-product clickable" role="button"
+                     data-bs-toggle="modal" data-bs-target="#productModal"
+                     data-id="{{ product._id }}"
+                     data-title="{{ product.title }}"
+                     data-description="{{ product.description }}"
+                     data-image="{{ product.image_url }}"
+                     data-price="{{ product.price }}">
                   <div class="card-image">
-                    <img src="{{ url_for('static', filename='product/1.jpg') }}" alt="Produk 1" class="img-fluid" />
+                    <img src="{{ product.image_url }}" alt="{{ product.title }}" class="img-fluid" />
                   </div>
-                  <div class="card-body d-flex flex-column justify-content-between">
-                    <h5 class="card-title">Bahan Kain Seragam Batik Modern Motif</h5>
-                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
-                      data-title="Bahan Kain Seragam Batik Modern Motif"
-                      data-description="Deskripsi produk ini adalah kain batik berkualitas tinggi dengan motif modern."
-                      data-image="{{ url_for('static', filename='product/1.jpg') }}">
-                      Lihat Detail
-                    </a>
+                  <div class="card-body">
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <div class="price-badge">Rp {{ "{:,.0f}".format(product.price|int).replace(',', '.') }}</div>
+                    <button class="button-product w-100">
+                      <i class="bi bi-eye me-2"></i>Lihat Detail
+                    </button>
                   </div>
                 </div>
               </div>
-              <!-- Product Card 2 -->
-              <div class="col-sm-6 col-md-4">
-                <div class="card-product">
-                  <div class="card-image">
-                    <img src="{{ url_for('static', filename='product/2.jpg') }}" alt="Produk 2" class="img-fluid" />
-                  </div>
-                  <div class="card-body d-flex flex-column justify-content-between">
-                    <h5 class="card-title">Bahan Kain Seragam Batik Modern Hitam</h5>
-                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
-                      data-title="Bahan Kain Seragam Batik Modern Hitam"
-                      data-description="Deskripsi produk ini adalah kain batik hitam berkualitas tinggi dengan motif modern."
-                      data-image="{{ url_for('static', filename='product/2.jpg') }}">
-                      Lihat Detail
-                    </a>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
             </div>
           </div>
-          <!-- Slide 2 -->
-          <div class="carousel-item">
-            <div class="row justify-content-center">
-              <!-- Product Card 3 -->
-              <div class="col-sm-6 col-md-4">
-                <div class="card-product">
-                  <div class="card-image">
-                    <img src="{{ url_for('static', filename='product/3.jpg') }}" alt="Produk 3" class="img-fluid" />
-                  </div>
-                  <div class="card-body d-flex flex-column justify-content-between">
-                    <h5 class="card-title">Bahan Kain Batik Motif Tradisional Karawang</h5>
-                    <a href="#" class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
-                      data-title="Bahan Kain Batik Motif Tradisional"
-                      data-description="Deskripsi produk ini adalah kain batik dengan motif tradisional khas Karawang."
-                      data-image="{{ url_for('static', filename='product/3.jpg') }}">
-                      Lihat Detail
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-6 col-md-4">
-                <div class="card-product">
-                  <div class="card-image">
-                    <img src="{{ url_for('static', filename='product/5.jpg') }}" alt="Produk 5" class="img-fluid" />
-                  </div>
-                  <div class="card-body d-flex flex-column justify-content-between">
-                    <h5 class="card-title">
-                      Bahan Kain Seragam Batik Modern Motif
-                    </h5>
-                    <a href="{{ url_for('static', filename='product/5.jpg') }}" class="button-product mt-3"
-                      data-bs-toggle="modal" data-bs-target="#productModal"
-                      data-title="Bahan Kain Seragam Batik Modern Motif"
-                      data-description="Deskripsi produk ini adalah Kain Seragam Batik Modern Motif khas Karawang."
-                      data-image="{{ url_for('static', filename='product/5.jpg') }}">
-                      Lihat Detail
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {% endfor %}
         </div>
         <!-- Tombol Previous -->
         <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <i class="ri-arrow-left-circle-fill"></i>
           <span class="visually-hidden">Previous</span>
         </button>
         <!-- Tombol Next -->
         <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <i class="ri-arrow-right-circle-fill"></i>
           <span class="visually-hidden">Next</span>
         </button>
-        <div class="d-flex justify-content-center">
-          <button class="btn btn-outline-warning more">
-            Lihat Selengkapnya
-          </button>
+      </div>
+      {% else %}
+      <!-- Simple row for 2 or fewer products -->
+      <div class="row justify-content-center g-4">
+        {% for product in product_list %}
+        <div class="col-sm-12 col-md-6 col-lg-5">
+          <div class="card-product clickable" role="button"
+               data-bs-toggle="modal" data-bs-target="#productModal"
+               data-id="{{ product._id }}"
+               data-title="{{ product.title }}"
+               data-description="{{ product.description }}"
+               data-image="{{ product.image_url }}"
+               data-price="{{ product.price }}">
+            <div class="card-image">
+              <img src="{{ product.image_url }}" alt="{{ product.title }}" class="img-fluid" />
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ product.title }}</h5>
+              <div class="price-badge">Rp {{ "{:,.0f}".format(product.price|int).replace(',', '.') }}</div>
+              <button class="button-product w-100">
+                <i class="bi bi-eye me-2"></i>Lihat Detail
+              </button>
+            </div>
+          </div>
         </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <div class="d-flex justify-content-center mt-5">
+        <a href="{{ url_for('product') }}" class="btn btn-outline-warning btn-lg more px-4">
+          <i class="bi bi-grid-2x2-gap me-2 fs-6"></i>Lihat Semua Produk
+        </a>
       </div>
     </div>
   </section>
 
   <!-- Modal -->
   <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content theme-batik">
         <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+          <h5 class="modal-title" id="productModalLabel">Detail Produk</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="text-center">
-            <img src="" id="modalImage" class="img-fluid mb-3" alt="Product Image" />
+          <div class="row g-4">
+            <div class="col-md-6 text-center">
+              <div class="modal-image-wrap mb-2">
+                <img src="" id="modalImage" class="img-fluid rounded shadow-sm" alt="Product Image" />
+              </div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <!-- Title at top -->
+              <div class="modal-title-section mb-2">
+                <h4 id="modalTitle" class="fw-bold mb-0"></h4>
+              </div>
+              
+              <!-- Description close to title -->
+              <div class="product-detail mb-auto">
+                <p id="modalDescription" class="text-muted mb-2"></p>
+              </div>
+              
+              <!-- Price and Quantity at bottom -->
+              <div class="modal-bottom-section mt-auto">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="price display-5 fw-bold me-3" style="color: #ffe9b3; font-size:1.6rem;">Rp <span id="modalPrice">0</span></div>
+                </div>
+                <div class="modal-quantity-section">
+                  <label class="form-label small mb-1">Jumlah</label>
+                  <div class="input-group" style="max-width:140px;">
+                    <button class="btn btn-outline-secondary" type="button" id="qty-decrease">-</button>
+                    <input type="number" id="qty" value="1" min="1" class="form-control text-center" />
+                    <button class="btn btn-outline-secondary" type="button" id="qty-increase">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h5 id="modalTitle"></h5>
-          <p id="modalDescription"></p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Close
+        <div class="modal-footer justify-content-start">
+          <button type="button" class="btn btn-batik more" id="buyButton" aria-label="Masukkan ke keranjang">
+            <i class="bi bi-cart-plus me-2">Beli</i>
           </button>
         </div>
       </div>
@@ -524,7 +539,7 @@
   </footer>
   <!-- Footer End -->
 
-  <script src="{{ url_for('static', filename='js/Product.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/product.js') }}"></script>
   <!-- Click Overlay -->
   <div id="click-overlay"></div>
 

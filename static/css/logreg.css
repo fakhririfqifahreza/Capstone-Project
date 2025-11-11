@@ -1,0 +1,394 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Inter", -apple-system, system-ui, sans-serif;
+  background: linear-gradient(135deg, #c9b97f, #a69352, #7c6c3c);
+  background-size: 300% 300%;
+  animation: gradientShift 10s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== Background batik blur ===== */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../asset/batik-bg.jpeg") center/cover no-repeat;
+  opacity: 0.12;
+  filter: blur(6px);
+  z-index: 0;
+}
+
+/* ===== Container utama ===== */
+.auth-container {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+  width: 900px;
+  max-width: 100%;
+  min-height: 520px;
+  z-index: 2;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 1s ease forwards;
+}
+
+.auth-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../asset/batik-bg.jpeg") center/cover no-repeat;
+  opacity: 0.08;
+  filter: blur(10px);
+  z-index: 1;
+}
+
+.auth-container > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== FORM ===== */
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  /* give more horizontal breathing room */
+  padding: 30px 60px;
+  text-align: center;
+  transition: all 0.6s ease-in-out;
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: slideUp 1s ease;
+}
+
+/* Inner form sizing so login/register match */
+.form-container form {
+  width: 100%;
+  max-width: 420px; /* slightly wider so fields/buttons don't feel cramped */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+/* LOGIN FORM */
+.sign-in-container {
+  left: 0;
+}
+
+/* REGISTER FORM */
+.sign-up-container {
+  left: 50%;
+  opacity: 0;
+  z-index: 1;
+  transform: translateX(0);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.auth-container.right-panel-active .sign-in-container {
+  transform: translateX(-100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.auth-container.right-panel-active .sign-up-container {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 5;
+}
+
+/* ===== Overlay ===== */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.overlay {
+  background: linear-gradient(to right, #aab396, #726a3b);
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.auth-container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.auth-container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+/* ===== Overlay Panels ===== */
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  height: 100%;
+  width: 50%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+  transform: translateX(-20%);
+}
+
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.auth-container.right-panel-active .overlay-left {
+  transform: translateX(0);
+}
+
+.auth-container.right-panel-active .overlay-right {
+  transform: translateX(20%);
+}
+
+/* ===== Input & Button ===== */
+input,
+select {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  /* more padding and vertical spacing for breathing room */
+  padding: 14px 16px;
+  margin: 12px 0;
+  width: 100%;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+  color: #2d2d2d;
+}
+
+input::placeholder {
+  color: #888;
+}
+
+input:focus,
+select:focus {
+  border-color: #726a3b;
+  box-shadow: 0 0 0 3px rgba(114, 106, 59, 0.1);
+}
+
+button {
+  border: none;
+  /* slightly larger touch area */
+  padding: 14px 40px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+}
+
+.btn-login {
+  background: #726a3b;
+  color: #fff;
+}
+
+.btn-login:hover {
+  background: #8c844a;
+  transform: translateY(-3px);
+}
+
+.btn-register {
+  background: #a89f68;
+  color: #fff;
+}
+
+.btn-register:hover {
+  background: #8f874f;
+  transform: translateY(-3px);
+}
+
+/* Make both auth buttons full-width and visually identical */
+.btn-login, .btn-register {
+  width: 100%;
+  padding: 14px 0;
+  font-size: 16px;
+}
+
+/* ===== Ghost Button ===== */
+.ghost {
+  background-color: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 10px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ghost:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* ===== SweetAlert Custom ===== */
+.swal2-popup {
+  background: rgba(255, 255, 255, 0.95) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(150, 130, 70, 0.2);
+  animation: slideInDown 0.3s ease forwards;
+  font-family: "Inter", system-ui, sans-serif;
+  padding: 1rem !important;
+  max-width: 320px !important;
+}
+
+.swal2-title {
+  color: #2d2d2d !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.4 !important;
+}
+
+.swal2-html-container {
+  color: #666 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  margin-top: 0 !important;
+}
+
+.swal2-confirm {
+  background: #726a3b !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 20px !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem !important;
+}
+
+.swal2-confirm:hover {
+  transform: translateY(-1px);
+  background: #8c844a !important;
+  box-shadow: 0 4px 12px rgba(114, 106, 59, 0.2);
+}
+
+.swal2-icon {
+  transform: scale(0.8);
+  margin: 0.5rem auto !important;
+}
+
+.swal2-actions {
+  margin-top: 0.5rem !important;
+}
+
+body.swal2-shown {
+  padding-right: 0 !important;
+}
+
+
+/* ===== Animations ===== */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Text Animation */
+@keyframes textFocus {
+  from { transform: translateY(5px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+h2 {
+  animation: textFocus 0.5s ease forwards;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  color: #2d2d2d;
+  letter-spacing: -0.5px;
+}
+
+p {
+  animation: textFocus 0.5s ease forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+  font-size: 0.95rem !important;
+  color: #555;
+  margin-bottom: 1.5rem !important;
+  line-height: 1.5;
+}
+
+/* ===== Responsif ===== */
+@media (max-width: 768px) {
+  .auth-container {
+    width: 100%;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .overlay-container {
+    display: none;
+  }
+
+  .form-container {
+    width: 100%;
+    left: 0 !important;
+  }
+
+  .sign-up-container,
+  .sign-in-container {
+    transform: translateX(0) !important;
+  }
+}

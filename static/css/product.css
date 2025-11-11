@@ -163,7 +163,20 @@ a {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  padding: 25px 20px;
+  /* reduce excessive horizontal padding so cards have more room */
+  padding: 10px 20px;
+}
+
+/* Prevent the page-level #product .row rule from affecting modal rows
+   The modal uses rows inside the #product section; reset their padding/background
+   so the modal's two-column layout aligns to the left like on index.html. */
+#product .modal .modal-body .row,
+.modal-content.theme-batik .modal-body .row,
+#product .modal .modal-dialog .modal-body .row {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
 }
 
 #product p {
@@ -208,6 +221,17 @@ a {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Add breathing room between cards on the product page */
+#product .card-product {
+  margin: 10px;
+}
+
+/* Make card content less cramped: larger padding and left align text for readability */
+#product .card-product .card-body {
+  padding: 24px;
+  text-align: left;
+}
+
 .card-product:hover {
   transform: scale(1.01);
   box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.2);
@@ -215,20 +239,250 @@ a {
 
 .card-image img {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  height: 220px; /* slightly taller for better image presence */
+  object-fit: cover; /* maintain aspect and fill card area */
 }
 
 .card-body {
   padding: 20px;
+  /* fallback center; product-specific override above sets left alignment */
   text-align: center;
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 15px;
-  color: #444444;
+  font-size: 16px; /* reduced */
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #3f3f3f;
+}
+
+.card-text.text-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #6b6b6b;
+  margin-bottom: 8px;
+  font-size: 0.95rem; /* smaller description */
+}
+
+.price-badge {
+  font-size: 1rem;
+  color: #8a4b1f; /* warm brown for price */
+}
+
+/* batik button styles: brown + golden */
+.btn-batik {
+  background: linear-gradient(90deg, #4b3c1b 0%, #4b3c1b 70%, #ffbf00 100%);
+  color: #fff;
+  border: 2px solid rgba(255,191,0,0.95);
+  box-shadow: 0 6px 18px rgba(75,60,27,0.15);
+}
+.btn-batik:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(75,60,27,0.2);
+}
+
+/* product detail block styling (warm brown accents) */
+.product-detail {
+  background: brown;
+  border-left: 4px solid #8B4513;
+  padding: 12px 14px;
+  border-radius: 6px;
+  color: #4b3c1b;
+}
+.product-detail .product-meta {
+  margin-top: 6px;
+  color: #6b4f3a;
+}
+
+/* btn-batik with icon layout */
+.btn-batik {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-batik .bi {
+  font-size: 1.05rem;
+  color: #ffdf80; /* golden icon */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+}
+.btn-batik .btn-label {
+  color: #fff;
+}
+
+/* subtle shadow around product-detail on larger screens */
+@media(min-width:768px){
+  .product-detail{ box-shadow: 0 6px 18px rgba(139,69,19,0.06); }
+}
+
+/* Minimal buy button in modal */
+.modal-footer .btn-batik.more {
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+.modal-footer .btn-batik.more .bi {
+  font-size: 1rem;
+}
+
+/* Theme: brown + gold for product modal */
+.modal-content.theme-batik {
+  /* deeper brown -> gold gradient for richer look */
+  background:  #4b3c1b;
+  color: #fff7ea; /* warm ivory text */
+  border: 1px solid rgba(183,122,43,0.18);
+  box-shadow: 0 12px 40px rgba(75,60,27,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.modal-content.theme-batik .modal-header {
+  border-bottom: 1px solid rgba(183,122,43,0.12);
+  background: linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0.02));
+  color: #fff7ea;
+}
+.modal-content.theme-batik .modal-title {
+  color: #ffe9b3; /* subtle gold title */
+  font-weight: 700;
+}
+.modal-content.theme-batik .modal-body,
+.modal-content.theme-batik .modal-footer { color: #fff7ea; }
+
+/* product-detail: darker inset block with gold left border */
+.product-detail {
+  background: rgba(43,26,14,0.22); /* slightly darker translucent brown for contrast */
+  border-left: 6px solid #ffd86b; /* bright gold accent */
+  padding: 14px;
+  border-radius: 8px;
+  color: #fffef6; /* ensure readable light text */
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.18);
+}
+
+/* Batik button: richer brown with golden highlights */
+.btn-batik {
+  background: linear-gradient(90deg, #5a3518 0%, #8b4513 60%, #d6a84a 100%);
+  color: #fff;
+  border: 1px solid rgba(255,215,100,0.18);
+  box-shadow: 0 6px 18px rgba(88,50,18,0.28);
+}
+.btn-batik .bi { color: #fff7d9; text-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+.btn-batik:hover, .btn-batik:focus { background: linear-gradient(90deg, #4b2d12 0%, #a36b20 100%); }
+.btn-batik .btn-label { margin-left: 8px; }
+
+/* Make sure price stands out as gold */
+.modal-content.theme-batik .price { color: #ffd86b; font-weight: 700; text-shadow: 0 1px 0 rgba(0,0,0,0.25); }
+
+/* Ensure modal body elements have clear contrast */
+.modal-content.theme-batik p,
+.modal-content.theme-batik .product-meta,
+.modal-content.theme-batik .small,
+.modal-content.theme-batik .card-text,
+.modal-content.theme-batik .card-title {
+  color: #fffef6; /* light ivory for readability */
+}
+
+/* For any labels/notes in gold areas, use darker brown for readability */
+.modal-content.theme-batik .note-dark {
+  color: #2e1b0f; /* dark brown */
+}
+
+/* Make modal description and stock label use a muted gray similar to card price text */
+.modal-content.theme-batik #modalDescription,
+.modal-content.theme-batik .modal-body .small,
+.modal-content.theme-batik .card-text.text-truncate {
+  color: #7a6b5f; /* muted gray-brown */
+}
+
+/* Make description and product-meta use the same gold color as price (e.g. for 'Mega Mendung') */
+.modal-content.theme-batik #modalDescription,
+.modal-content.theme-batik .product-meta {
+  color: #ffd86b !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}
+
+/* Make 'Mega Mendung' (product-meta) brighter yellow */
+.modal-content.theme-batik .product-meta {
+  color: #ffdf80 !important; /* brighter yellow */
+}
+
+/* Ensure description and stock use price/gold color */
+.modal-content.theme-batik #modalDescription,
+.modal-content.theme-batik .modal-body .small {
+  color: #ffd86b !important; /* price color */
+}
+
+/* Make navbar cart icon/text brown so it reads as 'cart' themed */
+.nav-link .bi-cart3,
+.nav-link[href*="cart"] { color: #8B4513 !important; }
+
+/* Modal body overall font -> match price color (gold) as requested */
+.modal-content.theme-batik .modal-body {
+  color: #ffd86b; /* gold text for labels and important text */
+}
+
+/* Ensure modal description keeps readable contrast if still needed */
+.modal-content.theme-batik #modalDescription { color: #7a6b5f; }
+
+/* Qty +/- buttons in modal: use brown background with gold icon/text (not gray) */
+.modal-content.theme-batik .input-group .btn {
+  background: #8b4513; /* brown */
+  color: #fff7d9; /* light gold text */
+  border: 1px solid #a36b20;
+}
+.modal-content.theme-batik .input-group .btn:focus,
+.modal-content.theme-batik .input-group .btn:hover {
+  background: #7a3d12;
+  color: #fff9e6;
+}
+
+/* Also apply to standalone detail page qty buttons if present */
+#detail-qty-decrease, #detail-qty-increase { background: #8b4513; color: #fff7d9; border: 1px solid #a36b20; }
+
+/* Ensure qty label/value, description and stock text use the same gold color as price */
+.modal-content.theme-batik label.form-label,
+.modal-content.theme-batik #modalDescription,
+.modal-content.theme-batik .modal-body .small,
+.modal-content.theme-batik input#qty,
+.modal-content.theme-batik input#detail-qty,
+.modal-content.theme-batik .input-group input,
+.modal-content.theme-batik .stock-number,
+.modal-content.theme-batik .stok-text,
+.modal-content.theme-batik #modalStok,
+.modal-content.theme-batik .stock-label {
+  color: #ffd86b !important; /* same gold as price */
+}
+
+/* Explicitly target the stock number/text, description, and "Jumlah" label
+   to match the price color (Rp) as requested by user. Use specific selectors
+   and !important to ensure they override earlier muted rules. */
+.modal-content.theme-batik .stock-number,
+.modal-content.theme-batik .stock-text,
+.modal-content.theme-batik .small.text-muted,
+.modal-content.theme-batik #modalDescription,
+.modal-content.theme-batik label[for="qty"],
+.modal-content.theme-batik label.form-label,
+.modal-content.theme-batik input#qty,
+.modal-content.theme-batik input#detail-qty {
+  color: #ffd86b !important;
+}
+
+
+/* change card detail button to golden with brown text */
+.button-product {
+  display: inline-block;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4b3c1b; /* brown text */
+  background: linear-gradient(90deg,#ffdf80,#ffbf00);
+  border-radius: 22px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.15s ease;
+  border: 1px solid rgba(75,60,27,0.08);
+}
+.button-product:hover {
+  background: linear-gradient(90deg,#ffd24d,#ffbf00);
+  color: #3a2f22;
 }
 
 /* Button Style */
@@ -255,6 +509,106 @@ a {
   padding: 10px 50px;
   font-size: 20px;
   font-weight: 700;
+}
+
+/* Improved modal/detail styling */
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.modal-dialog.modal-lg {
+  max-width: 920px;
+}
+
+.modal-image-wrap {
+  max-width: 100%;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f6f3eb, #fff);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.modal-image-wrap img {
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.price {
+  font-size: 1.4rem;
+  color: #8a4b1f;
+}
+
+.modal-body .small {
+  font-size: 0.95rem;
+}
+
+.modal-footer .btn-batik {
+  padding: 12px 26px;
+  font-size: 1rem;
+}
+
+/* Larger buy button for product modal */
+.modal-footer .btn-batik.more.btn-buy-lg {
+  padding: 12px 28px; /* wider touch target */
+  font-size: 1.05rem; /* slightly bigger text */
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .modal-image-wrap { height: 220px; }
+  .modal-dialog.modal-lg { max-width: 95%; }
+}
+
+/* size option pills */
+#sizeOptions .size-pill {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f1f1f1;
+  cursor: pointer;
+  border: 1px solid #e6e6e6;
+}
+
+#sizeOptions .size-pill.active {
+  background: #4b3c1b;
+  color: #fff;
+  border-color: #4b3c1b;
+}
+
+/* quantity buttons */
+.input-group .btn {
+  min-width: 38px;
+}
+
+/* Make quantity input number black */
+.modal-content.theme-batik .input-group input[type="number"] {
+  color: #000000 !important;
+  background: white;
+}
+
+/* card cosmetic tweaks */
+.card-product .card-body {
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-product .card-text {
+  color: #7a6b5f;
+  font-size: 0.95rem;
+}
+
+/* responsive modal image */
+@media (max-width: 768px) {
+  .modal-image-wrap { height: 180px; }
+  .card-image img { height: 180px; }
 }
 /* Pamer Product Styling End */
 
@@ -318,3 +672,33 @@ a {
   font-size: 20px;
 }
 /* Footer Style End */
+
+/* --- Overrides: make numeric values readable --- */
+/* Qty input: ensure the typed number is black and readable across browsers */
+.modal-content.theme-batik .input-group input[type="number"],
+.modal-content.theme-batik input#qty, .modal-content.theme-batik input#detail-qty {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important; /* for WebKit/Blink */
+  background: #ffffff !important;
+}
+
+/* Spin buttons sometimes inherit color; ensure they don't mask the text */
+.modal-content.theme-batik .input-group input[type="number"]::-webkit-inner-spin-button,
+.modal-content.theme-batik .input-group input[type="number"]::-webkit-outer-spin-button {
+  color: #000000 !important;
+}
+
+/* Stock label/number in the modal: set to brown so it stands out from gold text */
+.modal-content.theme-batik .d-flex.align-items-center.mb-3 .ms-auto .small.text-muted,
+.modal-content.theme-batik .stock-number,
+.modal-content.theme-batik .stock-text,
+.modal-content.theme-batik #modalStok {
+  color: #4b3c1b !important; /* brown */
+}
+
+/* If a numeric stock value uses a span inside small, target it specifically */
+.modal-content.theme-batik .ms-auto .small.text-muted span,
+.modal-content.theme-batik .stock-number span {
+  color: #4b3c1b !important;
+}
+

@@ -19,12 +19,13 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Add SweetAlert2 library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/invoice.css') }}  "
     />
-    <!-- Remove placeholder include for SweetAlert; include only where needed in other templates -->
   </head>
 
   <body>
@@ -93,11 +94,15 @@
             <th>Quantity</th>
             <th>Status</th>
             <th>Amount</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {% for order in orders %}
-          <tr data-invoice-id="{{ order['_id'] }}">
+          <tr
+            data-invoice-id="{{ order['_id'] }}"
+            data-status="{{ order.get('status', 'Unknown') }}"
+          >
             <td>{{ order['_id'] }}</td>
             <td>
               {% if order['tanggal'] is string %} {{ order['tanggal'] }} {% else
@@ -114,6 +119,14 @@
               </span>
             </td>
             <td>Rp. {{ "{:,}".format(order['amount']) }}</td>
+            <td>
+              <button
+                class="btn btn-info btn-sm btn-view-invoice"
+                data-invoice-id="{{ order['_id'] }}"
+              >
+                View
+              </button>
+            </td>
           </tr>
           {% endfor %}
           <tr class="total-row"></tr>
@@ -124,7 +137,9 @@
     <!-- Pop-Up Modal -->
     <div id="popup" class="popup-container">
       <div class="popup-content">
-        <h3>INVOICE</h3>
+        <h3>INVOICE DETAILS</h3>
+        <p><strong>Invoice ID:</strong> <span id="popup-invoice-id"></span></p>
+        <p><strong>Status:</strong> <span id="popup-status"></span></p>
         <p><strong>Details:</strong></p>
         <table class="table">
           <thead style="background-color: #4b3c1b; color: white">
@@ -137,7 +152,12 @@
           <tbody id="popup-details"></tbody>
           <!-- Isi tabel dinamis disini -->
         </table>
-        <button id="close-popup" class="btn btn-secondary">Back</button>
+        <div class="d-flex justify-content-between mt-3">
+          <button id="mark-complete-btn" class="btn btn-success">
+            Mark as Complete
+          </button>
+          <button id="close-popup" class="btn btn-secondary">Back</button>
+        </div>
       </div>
     </div>
 

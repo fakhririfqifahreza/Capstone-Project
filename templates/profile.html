@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profil Saya — Batik Karawang</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Quattrocento:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/home.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/pages/profile.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Top navbar (Home / Product / Keranjang) -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('homepage') }}"
+          >Batik Karawang</a
+        >
+        <button
+          class="navbar-toggler mx-auto mx-sm-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto text-center">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('homepage') }}">
+                <i class="bi bi-house-door-fill fs-6"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('product') }}">
+                <i class="bi bi-basket-fill fs-6"></i> Product
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">
+                <i class="bi bi-envelope-fill fs-6"></i> Contact
+              </a>
+            </li>
+            {% if session.get('logged_in') %} {% else %}
+            <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
+              <a class="nav-login" href="{{ url_for('login') }}">Login</a>
+            </li>
+            <li class="nav-item mt-2 mt-lg-0 mb-3 mb-lg-0">
+              <a class="nav-register" href="{{ url_for('register') }}"
+                >Register</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-5">
+      <h2 class="mb-4">Profil Saya</h2>
+
+      {% if message %}
+      <div class="alert alert-success">{{ message }}</div>
+      {% endif %} {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <div class="profile-container">
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+          <div class="profile-card mb-3">
+            <div class="profile-avatar mb-2">
+              {% if user and user.avatar %}
+              <img
+                src="{{ url_for('static', filename=user.avatar) }}"
+                alt="{{ user.name }}'s avatar"
+                class="rounded-circle"
+                style="width: 100px; height: 100px; object-fit: cover"
+              />
+              {% else %}
+              <div class="avatar-placeholder" id="user-avatar">
+                {{ (user.name[0:2]|upper) if user and user.name else 'U' }}
+              </div>
+              {% endif %}
+            </div>
+            <div class="profile-info">
+              <h5 id="user-display-name">{{ user.name if user else '' }}</h5>
+              <p class="mb-0 text-muted" id="user-display-email">
+                {{ user.email if user else '' }}
+              </p>
+              <small class="text-muted" id="user-display-phone"
+                >{{ user.phone if user and user.phone else '-' }}</small
+              >
+            </div>
+          </div>
+
+          <nav class="profile-nav">
+            <a
+              href="#personal-info-tab"
+              class="nav-item active"
+              data-tab="personal-info"
+              >👤 Personal Info</a
+            >
+            <a href="{{ url_for('invoice') }}" class="nav-item">📦 My Orders</a>
+            <a href="#security-tab" class="nav-item" data-tab="security"
+              >🔒 Security</a
+            >
+            <a href="#preferences-tab" class="nav-item" data-tab="preferences"
+              >⚙️ Preferences</a
+            >
+          </nav>
+        </aside>
+
+        <!-- Content -->
+        <div class="profile-content">
+          <!-- Personal Info -->
+          <section class="profile-tab active" id="personal-info-tab">
+            <div class="card mb-3 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Personal Information</h5>
+                <p class="text-muted">
+                  Edit name and phone number. Email cannot be changed here.
+                </p>
+
+                <form
+                  id="profile-form"
+                  method="post"
+                  enctype="multipart/form-data"
+                  action="{{ url_for('profile') }}"
+                >
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Full name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        id="profile-name"
+                        class="form-control"
+                        value="{{ user.name if user else '' }}"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        value="{{ user.email if user else '' }}"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Phone</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        id="profile-phone"
+                        class="form-control"
+                        value="{{ user.phone if user and user.phone else '' }}"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Avatar</label>
+                      <input
+                        type="file"
+                        name="avatar"
+                        id="profile-avatar"
+                        class="form-control"
+                        accept="image/*"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-2 align-items-center">
+                    <button
+                      type="submit"
+                      class="btn"
+                      style="
+                        background-color: #4b3c1b;
+                        color: #fff;
+                        border: none;
+                        padding: 6px 16px;
+                        transition: all 0.3s ease;
+                        font-size: 0.9rem;
+                        border-radius: 6px;
+                      "
+                    >
+                      <i class="bi bi-save fs-6"></i> Simpan
+                    </button>
+                    <button
+                      type="button"
+                      class="btn"
+                      onclick="resetForm()"
+                      style="
+                        border: 1px solid #ffbf00;
+                        color: #4b3c1b;
+                        padding: 6px 16px;
+                        font-size: 0.9rem;
+                        border-radius: 6px;
+                        background: transparent;
+                      "
+                    >
+                      <i class="bi bi-arrow-counterclockwise fs-6"></i> Reset
+                    </button>
+                    <a
+                      href="{{ url_for('logout') }}"
+                      class="btn ms-auto"
+                      style="
+                        background-color: transparent;
+                        border: 1px solid #ffbf00;
+                        color: #ffbf00;
+                        padding: 6px 16px;
+                        font-size: 0.9rem;
+                        border-radius: 6px;
+                        transition: all 0.3s ease;
+                      "
+                      onclick="sessionStorage.removeItem('logged_in'); localStorage.removeItem('currentUser');"
+                      onmouseover="this.style.backgroundColor='#ffbf00'; this.style.color='#fff';"
+                      onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ffbf00';"
+                    >
+                      <i class="bi bi-box-arrow-right fs-6"></i> Logout
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <!-- Security -->
+          <section class="profile-tab" id="security-tab">
+            <div class="card mb-3 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Security</h5>
+                <p class="text-muted">
+                  Manage your password and account security.
+                </p>
+
+                <form
+                  id="password-form"
+                  method="post"
+                  class="modern-form"
+                  onsubmit="event.preventDefault(); changePassword();"
+                >
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Current password</label>
+                      <div class="input-group">
+                        <input
+                          id="current-password"
+                          name="current_password"
+                          type="password"
+                          class="form-control"
+                          placeholder="Current password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          onclick="togglePassword('current-password')"
+                        >
+                          👁️
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">New password</label>
+                      <div class="input-group">
+                        <input
+                          id="new-password"
+                          name="new_password"
+                          type="password"
+                          class="form-control"
+                          placeholder="New password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          onclick="togglePassword('new-password')"
+                        >
+                          👁️
+                        </button>
+                      </div>
+                      <div class="mt-2">
+                        <div class="progress">
+                          <div
+                            id="password-strength-fill"
+                            class="progress-bar"
+                            style="width: 0%"
+                          ></div>
+                        </div>
+                        <small id="password-strength-label" class="text-muted"
+                          >Password strength</small
+                        >
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Confirm new password</label>
+                      <div class="input-group">
+                        <input
+                          id="confirm-password"
+                          name="confirm_password"
+                          type="password"
+                          class="form-control"
+                          placeholder="Confirm new password"
+                          required
+                        />
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          onclick="togglePassword('confirm-password')"
+                        >
+                          👁️
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 mt-2">
+                      <button
+                        type="submit"
+                        class="btn"
+                        style="
+                          background-color: #4b3c1b;
+                          color: #fff;
+                          border: none;
+                          padding: 6px 16px;
+                          transition: all 0.3s ease;
+                          font-size: 0.9rem;
+                          border-radius: 6px;
+                        "
+                      >
+                        <i class="bi bi-key-fill fs-6"></i> Update Password
+                      </button>
+                      <button
+                        type="button"
+                        class="btn"
+                        onclick="document.getElementById('password-form').reset()"
+                        style="
+                          border: 1px solid #ffbf00;
+                          color: #4b3c1b;
+                          padding: 6px 16px;
+                          font-size: 0.9rem;
+                          border-radius: 6px;
+                          background: transparent;
+                        "
+                      >
+                        <i class="bi bi-arrow-counterclockwise fs-6"></i> Reset
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <!-- Preferences -->
+          <section class="profile-tab" id="preferences-tab">
+            <div class="card mb-3 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Preferences</h5>
+                <p class="text-muted">Customize your experience.</p>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id="pref-email"
+                    checked
+                  />
+                  <label class="form-check-label" for="pref-email"
+                    >Email notifications</label
+                  >
+                </div>
+                <div class="form-check mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id="pref-sms"
+                  />
+                  <label class="form-check-label" for="pref-sms"
+                    >SMS notifications</label
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Start -->
+    <footer id="footer">
+      <div class="container footer">
+        <div
+          class="row d-flex justify-content-between align-items-baseline text-center text-md-start"
+        >
+          <div class="col-12 col-md-3">
+            <h5>Tentang Kami</h5>
+            <p>
+              Batik Sanggabuana Karawang Jual Batik | Jual Batik Asli | Jual
+              Batik Original | Batik | Batik Asli | Batik Original | Batik Pria
+              | Batik Wanita | Batik Modern | Batik Tradisional | Batik Premium
+              | Motif Batik Floral | Motif Batik Geometris | Motif Batik
+              Tradisional | Motif Batik Karawang |
+            </p>
+            <p class="lead">Batik Sanggabuana Karawang</p>
+          </div>
+          <div class="col-12 col-md-3">
+            <h5>Pembayaran</h5>
+            <div>
+              <img
+                src="{{ url_for('static', filename='footer-img/bni.png') }}"
+                alt=""
+                class="mb-2"
+              />
+              <p>rek bni: 1720036777 a/n Ucok Subejo</p>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/bri.png') }}"
+                  alt=""
+                />
+                <p>rek bri: 00098663 a/n Ucok Subejo</p>
+              </div>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/mandiri.png') }}"
+                  alt=""
+                />
+                <p>rek mandiri: 33388686486 a/n Ucok Subejo</p>
+              </div>
+              <div>
+                <img
+                  src="{{ url_for('static', filename='footer-img/DANA.png') }}"
+                  alt=""
+                />
+                <p>DANA: 08385534934 a/n Ucok Subejo</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <h5>INFORMATION</h5>
+            <li><a href="{{ url_for('homepage') }}">Home</a></li>
+            <li><a href="{{ url_for('homepage') }}">Abouts</a></li>
+            <li><a href="{{ url_for('homepage') }}">Contact</a></li>
+            <li><a href="{{ url_for('product') }}">product</a></li>
+          </div>
+        </div>
+        <hr />
+        <p class="copy-right text-center">© 2025 Timeout Group</p>
+      </div>
+    </footer>
+    <!-- Footer End -->
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/form-enhancements.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Handle avatar upload and preview
+      document
+        .getElementById("profile-avatar")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const avatarContainer = document.querySelector(".profile-avatar");
+              let img = avatarContainer.querySelector("img");
+
+              if (img) {
+                // Update existing image
+                img.src = e.target.result;
+              } else {
+                // Create new image
+                img = document.createElement("img");
+                img.src = e.target.result;
+                img.classList.add("rounded-circle");
+                img.style.width = "100px";
+                img.style.height = "100px";
+                img.style.objectFit = "cover";
+
+                // Replace placeholder if it exists
+                const placeholder = document.getElementById("user-avatar");
+                if (placeholder) {
+                  placeholder.parentNode.replaceChild(img, placeholder);
+                } else {
+                  avatarContainer.appendChild(img);
+                }
+              }
+            };
+            reader.readAsDataURL(file);
+
+            // Upload file
+            const formData = new FormData();
+            formData.append("avatar", file);
+
+            fetch("/upload_avatar", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Show success message
+                  const messageDiv = document.createElement("div");
+                  messageDiv.className = "alert alert-success mt-2";
+                  messageDiv.textContent = data.message;
+                  document
+                    .querySelector(".profile-avatar")
+                    .appendChild(messageDiv);
+
+                  // Remove message after 3 seconds
+                  setTimeout(() => messageDiv.remove(), 3000);
+
+                  // Update avatar image with the saved file
+                  const img = document.querySelector(".profile-avatar img");
+                  if (img) {
+                    img.src = "/static/" + data.avatar;
+                  }
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                // Show error message
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "alert alert-danger mt-2";
+                messageDiv.textContent =
+                  "Terjadi kesalahan saat mengunggah avatar";
+                document
+                  .querySelector(".profile-avatar")
+                  .appendChild(messageDiv);
+
+                // Remove message after 3 seconds
+                setTimeout(() => messageDiv.remove(), 3000);
+              });
+          }
+        });
+
+      // tab switching
+      document.querySelectorAll(".profile-nav .nav-item").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          document
+            .querySelectorAll(".profile-nav .nav-item")
+            .forEach((n) => n.classList.remove("active"));
+          link.classList.add("active");
+          const tab = link.getAttribute("data-tab");
+          if (tab) {
+            document
+              .querySelectorAll(".profile-tab")
+              .forEach((t) => t.classList.remove("active"));
+            document.getElementById(tab + "-tab").classList.add("active");
+          }
+        });
+      });
+
+      function resetForm() {
+        const f = document.getElementById("profile-form");
+        if (f) {
+          f.reset();
+        }
+        showNotification && showNotification("Form reset", "info");
+      }
+
+      (function () {
+        const pass = document.getElementById("new-password");
+        const fill = document.getElementById("password-strength-fill");
+        const label = document.getElementById("password-strength-label");
+        if (pass) {
+          pass.addEventListener("input", () => {
+            const v = pass.value;
+            let s = 0;
+            if (v.length >= 8) s += 25;
+            if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s += 25;
+            if (/\d/.test(v)) s += 25;
+            if (/[^a-zA-Z\d]/.test(v)) s += 25;
+            const el = document.getElementById("password-strength-fill");
+            if (el) el.style.width = s + "%";
+            if (s >= 75) {
+              label && (label.textContent = "Strong password");
+            } else if (s >= 50) {
+              label && (label.textContent = "Good password");
+            } else {
+              label && (label.textContent = "Weak password");
+            }
+          });
+        }
+      })();
+
+      function changePassword() {
+        if (window.changePasswordAjax) {
+          window.changePasswordAjax();
+          return;
+        }
+        showNotification &&
+          showNotification("Password change requested (demo)", "info");
+      }
+    </script>
+  </body>
+</html>

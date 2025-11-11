@@ -1,0 +1,314 @@
+
+/* Navbar Styling Start */
+.navbar {
+  background-color: #4b3c1b;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  /* border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px; */
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  transition: all 0.4s ease-in-out;
+  opacity: 1;
+  animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.navbar:hover {
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-brand {
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  color: #ffbf00;
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+  text-shadow: 2px 0px 2px white;
+  display: inline-block; /* Agar animasi bekerja pada elemen inline */
+  animation: bounceSmooth 2s infinite; /* Animasi berjalan terus-menerus */
+}
+
+@keyframes bounceSmooth {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0); /* Posisi awal */
+  }
+  40% {
+    transform: translateY(-20px); /* Gerakan ke atas */
+  }
+  60% {
+    transform: translateY(-10px); /* Gerakan ke atas lebih kecil */
+  }
+}
+
+.navbar-brand:hover {
+  color: #ffffff;
+  text-shadow: 2px 0px 2px #ffbf00;
+}
+
+.navbar-toggler {
+  background-color: #ffbf00;
+  border-radius: 10px;
+  padding: 10px;
+  border: none;
+  transition: all 0.6s ease;
+}
+
+.navbar-toggler:hover {
+  background-color: #ffd106;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%2850, 50, 50, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.nav-link {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 1.1rem;
+  transition: color 0.3s ease, transform 0.3s ease, padding 0.2s ease;
+  padding: 8px 20px;
+  border-radius: 5px;
+  position: relative;
+  text-transform: uppercase;
+  /* margin: 0 10px; */
+  /* font-size: 1.06rem; Ukuran lebih kecil */
+  margin-right: 5px;
+  /* Jarak ikon dengan teks */
+  vertical-align: middle;
+  /* Menyesuaikan posisi vertikal */
+}
+
+.nav-link:hover {
+  color: rgb(248, 220, 5);
+  font-weight: 500;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 3px;
+  background-color: #ffbf00;
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #4b3c1b;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.nav-login,
+.nav-register {
+  text-decoration: none;
+  line-height: 39px;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 1rem;
+  margin: 0px 22px;
+  text-transform: uppercase;
+  font-weight: 500;
+  animation: pulse 1s infinite;
+}
+
+.nav-login {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid yellow;
+  transition: 0.5s;
+  color: #ffbf00;
+}
+
+.nav-login:hover {
+  background-color: #ffbf00;
+  color: #ffffff;
+}
+
+.nav-register {
+  background-color: #ffbf00;
+  padding: 8px;
+  border-radius: 8px;
+  transition: 0.7s;
+}
+
+.nav-register:hover {
+  color: black;
+}
+
+.collapse {
+  transition: height 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.profile-content {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.profile-tab {
+    display: none;
+}
+
+.profile-tab.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--primary);
+}
+
+.tab-header h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.tab-header p {
+    color: var(--text);
+    opacity: 0.8;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--light);
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--light);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: var(--primary);
+}
+
+.radio-option input[type="radio"]:checked + .radio-checkmark {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.radio-checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--light);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.radio-checkmark::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.radio-option input[type="radio"]:checked + .radio-checkmark::after {
+    opacity: 1;
+}
+
+.preferences-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preference-item.modern {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 2px solid var(--light);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.preference-item.modern:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.preference-item.modern input[type="checkbox"]:checked + .checkmark {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.preference-item.modern input[type="checkbox"]:checked + .checkmark::after {
+    opacity: 1;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--light);
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+}

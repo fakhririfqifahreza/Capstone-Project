@@ -35,11 +35,13 @@
               <i class="bi bi-house-door-fill"></i> Home
             </a>
           </li>
+          {% if session.get('logged_in') %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('cart') }}">
               <i class="bi bi-card-list"></i>  Keranjang
             </a>
           </li>
+          {% endif %}
         </ul>
       </div>
     </div>
@@ -76,19 +78,24 @@
       <div class="row mt-5 g-4 justify-content-center">
         {% for product in products %}
         <div class="col-sm-6 col-md-4">
-          <div class="card-product">
+          <div class="card-product clickable" role="button"
+               data-bs-toggle="modal" data-bs-target="#productModal"
+               data-id="{{ product._id }}"
+               data-title="{{ product.title }}"
+               data-description="{{ product.description }}"
+               data-image="{{ product.image_url }}"
+               data-price="{{ product.price }}">
             <div class="card-image">
               <img src="{{ product.image_url }}" alt="{{ product.title }}" class="img-fluid" />
             </div>
             <div class="card-body d-flex flex-column justify-content-between">
               <h5 class="card-title">{{ product.title }}</h5>
-              <p class="card-text">Harga: Rp {{ product.price }}</p>
-              <button class="button-product mt-3" data-bs-toggle="modal" data-bs-target="#productModal"
-                data-id="{{ product._id }}" data-title="{{ product.title }}"
-                data-description="{{ product.description }}" data-image="{{ product.image_url }}"
-                data-price="{{ product.price }}">
-                Lihat Detail
-              </button>
+              <p class="card-text text-truncate">{{ product.description[:80] if product.description else '' }}</p>
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div class="price-badge fw-bold" style="color: #8B4513;">Rp {{ "{:,.0f}".format(product.price|int).replace(',', '.') }}</div>
+                
+              </div>
+              <!-- Card is clickable to open detail modal; detail button removed for minimal UX -->
             </div>
           </div>
         </div>
@@ -97,29 +104,51 @@
       
       <!-- Modal -->
       <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content theme-batik">
             <div class="modal-header">
-              <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+              <h5 class="modal-title" id="productModalLabel">Detail Produk</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <div class="text-center">
-                <img src="" id="modalImage" class="img-fluid mb-3" alt="Product Image" />
+              <div class="row g-4">
+                <div class="col-md-6 text-center">
+                  <div class="modal-image-wrap mb-2">
+                    <img src="" id="modalImage" class="img-fluid rounded shadow-sm" alt="Product Image" />
+                  </div>
+                </div>
+                <div class="col-md-6 d-flex flex-column align-items-start text-start">
+                  <!-- Title at top -->
+                  <div class="modal-title-section mb-2">
+                    <h4 id="modalTitle" class="fw-bold mb-0"></h4>
+                  </div>
+                  
+                  <!-- Description close to title -->
+                  <div class="product-detail mb-auto">
+                    <p id="modalDescription" class="text-muted mb-2"></p>
+                  </div>
+                  
+                  <!-- Price and Quantity at bottom -->
+                  <div class="modal-bottom-section mt-auto">
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="price display-5 fw-bold me-3" style="color: #ffe9b3; font-size:1.6rem;">Rp <span id="modalPrice">0</span></div>
+                    </div>
+                    <div class="modal-quantity-section">
+                      <label class="form-label small mb-1">Jumlah</label>
+                      <div class="input-group" style="max-width:140px;">
+                        <button class="btn btn-outline-secondary" type="button" id="qty-decrease">-</button>
+                        <input type="number" id="qty" value="1" min="1" class="form-control text-center" />
+                        <button class="btn btn-outline-secondary" type="button" id="qty-increase">+</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h5 id="modalTitle"></h5>
-              <p id="modalDescription"></p>
-
-              <!-- Menampilkan ukuran yang dipilih -->
-              <p id="selectedSize" class="mt-3"></p>
             </div>
-            <div class="modal-footer">
-              <!-- Tombol Beli -->
-              <button type="button" class="btn btn-success more" id="buyButton">Masukkan Ke Keranjang</button>
-
-              <!-- Tombol Close -->
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                Close
+            <div class="modal-footer justify-content-start">
+              <button type="button" class="btn btn-batik more btn-buy-lg" id="buyButton" aria-label="Masukkan ke keranjang">
+                <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                <span class="btn-label">Masukkan Keranjang</span>
               </button>
             </div>
           </div>

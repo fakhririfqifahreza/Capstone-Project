@@ -28,12 +28,9 @@ $(document).ready(function () {
     });
   });
 
-  // Handle Approve, Complete, and Reject buttons
+  // Handle Approve and Reject buttons
   $("#approve-btn").click(function () {
     updateOrderStatus("Process");
-  });
-  $("#complete-btn").click(function () {
-    updateOrderStatus("Completed");
   });
   $("#reject-btn").click(function () {
     updateOrderStatus("Cancelled");

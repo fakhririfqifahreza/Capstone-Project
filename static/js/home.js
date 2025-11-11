@@ -47,6 +47,26 @@ window.addEventListener("scroll", function () {
   }
 });
 
+// Redirect guests to login when they click the Cart nav link
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    const cartLinks = document.querySelectorAll('.nav-link[href*="cart"]');
+    cartLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        // allow if client knows user is logged in
+        if (sessionStorage.getItem("logged_in") === "true") return;
+        e.preventDefault();
+        // Redirect to login and after login return to cart
+        const next = encodeURIComponent("/cart");
+        window.location.href = "/login?next=" + next;
+      });
+    });
+  } catch (err) {
+    // defensive: if DOM APIs not available or other error, do nothing
+    console.warn("cart link guard failed:", err);
+  }
+});
+
 // Menambahkan animasi klik pada navbar link
 const navLinks = document.querySelectorAll(".nav-link");
 navLinks.forEach((link) => {
@@ -102,25 +122,29 @@ window.addEventListener("scroll", () => {
   }
 });
 
-// Menambahkan efek hover dinamis pada nav-login dan nav-register
+// Menambahkan efek dinamis pada nav-login dan nav-register (guarded)
 const navLogin = document.querySelector(".nav-login");
 const navRegister = document.querySelector(".nav-register");
 
-navLogin.addEventListener("mouseenter", () => {
-  navLogin.style.transform = "scale(1.1)";
-  navLogin.style.transition = "transform 0.3s ease";
-});
-navLogin.addEventListener("mouseleave", () => {
-  navLogin.style.transform = "scale(1)";
-});
+if (navLogin) {
+  navLogin.addEventListener("mouseenter", () => {
+    navLogin.style.transform = "scale(1.1)";
+    navLogin.style.transition = "transform 0.3s ease";
+  });
+  navLogin.addEventListener("mouseleave", () => {
+    navLogin.style.transform = "scale(1)";
+  });
+}
 
-navRegister.addEventListener("mouseenter", () => {
-  navRegister.style.transform = "scale(1.1)";
-  navRegister.style.transition = "transform 0.3s ease";
-});
-navRegister.addEventListener("mouseleave", () => {
-  navRegister.style.transform = "scale(1)";
-});
+if (navRegister) {
+  navRegister.addEventListener("mouseenter", () => {
+    navRegister.style.transform = "scale(1.1)";
+    navRegister.style.transition = "transform 0.3s ease";
+  });
+  navRegister.addEventListener("mouseleave", () => {
+    navRegister.style.transform = "scale(1)";
+  });
+}
 
 // Menambahkan efek smooth collapse pada navbar
 const navbarCollapse = document.querySelector(".collapse");
@@ -137,16 +161,24 @@ navbarToggler.addEventListener("click", () => {
 });
 
 // Mengubah tampilan navbar berdasarkan status login
-if (sessionStorage.getItem('logged_in') === 'true') {
-  // Jika user sudah login, ganti navbar
-  document.querySelector('.nav-login').innerHTML = 'Logout';
-  document.querySelector('.nav-login').setAttribute('href', '/logout');
-  document.querySelector('.nav-register').style.display = 'none';
+if (sessionStorage.getItem("logged_in") === "true") {
+  // Jika user sudah login, ganti navbar (guarded)
+  const nLogin = document.querySelector(".nav-login");
+  const nRegister = document.querySelector(".nav-register");
+  if (nLogin) {
+    nLogin.innerHTML = "Logout";
+    nLogin.setAttribute("href", "/logout");
+  }
+  if (nRegister) nRegister.style.display = "none";
 } else {
   // Jika user belum login, tampilkan Login dan Register
-  document.querySelector('.nav-login').innerHTML = 'Login';
-  document.querySelector('.nav-login').setAttribute('href', '/login');
-  document.querySelector('.nav-register').style.display = 'block';
+  const nLogin = document.querySelector(".nav-login");
+  const nRegister = document.querySelector(".nav-register");
+  if (nLogin) {
+    nLogin.innerHTML = "Login";
+    nLogin.setAttribute("href", "/login");
+  }
+  if (nRegister) nRegister.style.display = "block";
 }
 
 // product
@@ -239,19 +271,21 @@ $(document).ready(function () {
   const $reviewMessage = $("#reviewMessage");
 
   // Buat elemen kotak pesan modern
-  const $messageBox = $("<div></div>").css({
-    position: "fixed",
-    bottom: "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    color: "white",
-    padding: "15px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    fontFamily: "Arial, sans-serif",
-    display: "none",
-    zIndex: "9999",
-  }).appendTo("body");
+  const $messageBox = $("<div></div>")
+    .css({
+      position: "fixed",
+      bottom: "20px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      color: "white",
+      padding: "15px",
+      borderRadius: "8px",
+      fontSize: "16px",
+      fontFamily: "Arial, sans-serif",
+      display: "none",
+      zIndex: "9999",
+    })
+    .appendTo("body");
 
   // Fungsi untuk menampilkan pesan
   function showMessage(message, isError = false, duration = 4000) {
@@ -314,24 +348,54 @@ $(document).ready(function () {
 });
 
 const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === "true") {
-            Swal.fire({
-                icon: 'success',
-                title: 'Terima kasih!',
-                text: 'Terima kasih atas ulasan Anda. Kami akan mempertimbangkan masukan Anda dengan baik.',
-                confirmButtonText: 'OK'
-            });
-        }
+if (urlParams.get("success") === "true") {
+  Swal.fire({
+    icon: "success",
+    title: "Terima kasih!",
+    text: "Terima kasih atas ulasan Anda. Kami akan mempertimbangkan masukan Anda dengan baik.",
+    confirmButtonText: "OK",
+  });
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-  const revealElements = document.querySelectorAll('.reveal');
+// If redirected after logout, clear client-side login flags and tidy the URL
+if (
+  urlParams.get("logged_out") === "1" ||
+  urlParams.get("logged_out") === "true"
+) {
+  try {
+    sessionStorage.removeItem("logged_in");
+    localStorage.removeItem("currentUser");
+  } catch (e) {}
+  // show a small toast if Swal available
+  if (window.Swal) {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Anda berhasil logout",
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  }
+  // Remove the query parameter from URL without reloading
+  const cleaned = new URL(window.location.href);
+  cleaned.searchParams.delete("logged_out");
+  window.history.replaceState(
+    {},
+    document.title,
+    cleaned.pathname + cleaned.search
+  );
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const revealElements = document.querySelectorAll(".reveal");
 
   // Fungsi untuk memeriksa apakah elemen ada di dalam viewport
   function checkVisibility() {
     revealElements.forEach((el) => {
       const rect = el.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom >= 0) {
-        el.classList.add('visible');
+        el.classList.add("visible");
       }
     });
   }
@@ -340,26 +404,5 @@ document.addEventListener('DOMContentLoaded', function () {
   checkVisibility();
 
   // Menambahkan event listener untuk scroll
-  window.addEventListener('scroll', checkVisibility);
+  window.addEventListener("scroll", checkVisibility);
 });
-
-document.addEventListener("DOMContentLoaded", function () {
-  const productLink = document.querySelector(".nav-link[href='{{ url_for('product') }}']");
-  if (productLink) {
-    productLink.addEventListener("click", function (e) {
-      e.preventDefault(); // Mencegah navigasi langsung
-      Swal.fire({
-        title: "Akses Terbatas!",
-        text: "Anda harus login terlebih dahulu untuk melihat produk.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Login",
-        cancelButtonText: "Batal",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "{{ url_for('login') }}"; // Arahkan ke halaman login
-        }
-      });
-    });
-  }
- });

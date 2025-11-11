@@ -34,6 +34,96 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+def save_avatar(file):
+    """Save an avatar file and return its relative path."""
+    if not file or not allowed_file(file.filename):
+        return None
+        
+    try:
+        # Generate secure filename with timestamp and unique ID
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+        unique_id = str(uuid.uuid4())[:8]
+        filename = f"{timestamp}{unique_id}_{filename}"
+        
+        # Ensure uploads folder exists in static folder
+        upload_path = os.path.join(app.static_folder, 'uploads')
+        os.makedirs(upload_path, exist_ok=True)
+        
+        # Save file in static/uploads directory
+        filepath = os.path.join(upload_path, filename)
+        file.save(filepath)
+        
+        # Return relative path for database storage
+        return 'uploads/' + filename
+        
+    except Exception as e:
+        print(f"Error saving avatar: {e}")
+        return None
+
+@app.route('/upload_avatar', methods=['POST'])
+def upload_avatar():
+    if 'avatar' not in request.files:
+        return jsonify({'error': 'No avatar file uploaded'}), 400
+    
+    file = request.files['avatar']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'File type not allowed'}), 400
+
+    # Get user ID from session
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    try:
+        # Get user to check existing avatar
+        user = db.users.find_one({'_id': ObjectId(user_id)})
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Delete old avatar if it exists
+        if user.get('avatar'):
+            old_avatar_path = os.path.join(app.static_folder, user['avatar'])
+            try:
+                if os.path.exists(old_avatar_path):
+                    os.remove(old_avatar_path)
+            except Exception as e:
+                print(f"Warning - Failed to delete old avatar: {e}")
+
+        # Save new avatar
+        avatar_path = save_avatar(file)
+        if not avatar_path:
+            return jsonify({'error': 'Failed to save avatar'}), 500
+
+        # Update user in database with new avatar path
+        result = db.users.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'avatar': avatar_path}}
+        )
+        
+        if result.modified_count > 0:
+            return jsonify({
+                'success': True,
+                'message': 'Avatar berhasil diperbarui',
+                'avatar': avatar_path
+            }), 200
+        else:
+            # Try to delete the newly saved avatar since db update failed
+            try:
+                new_avatar_path = os.path.join(app.static_folder, avatar_path)
+                if os.path.exists(new_avatar_path):
+                    os.remove(new_avatar_path)
+            except:
+                pass
+            return jsonify({'error': 'Gagal memperbarui avatar di database'}), 500
+
+    except Exception as e:
+        print(f"Error in upload_avatar: {e}")
+        return jsonify({'error': 'Terjadi kesalahan saat menyimpan avatar'}), 500
+
 
 def _get_cart_owner():
     """Return a stable owner identifier for cart items.
@@ -102,83 +192,75 @@ for review in db.reviews.find():
 # Route untuk halaman login
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    # If POST (AJAX or form), return JSON so frontend can handle notifications
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        if not email or not password:
-            return render_template('login.html', error="Email dan password harus diisi")
-        
-        # Cari user berdasarkan email
-        user = db.users.find_one({'email': email})
-        
-        if not user or not bcrypt.check_password_hash(user['password'], password):
-            return render_template('login.html', error="Email atau password salah")
+        # Support both form-encoded and JSON bodies
+        data = request.get_json(silent=True) or request.form
+        email = data.get('email')
+        password = data.get('password')
 
-        
-        # Simpan informasi login ke sesi
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email dan password harus diisi'})
+
+        user = db.users.find_one({'email': email})
+        if not user or not bcrypt.check_password_hash(user['password'], password):
+            return jsonify({'success': False, 'message': 'Email atau password salah'})
+
+        # Save session
         session['logged_in'] = True
         session['user_id'] = str(user['_id'])
-        session['role'] = user['role']
-        session['nama'] = user['name']
-        
-        # Redirect berdasarkan role user
-        if user['role'] == 'admin':
-            return jsonify({
-                'success': True,
-                'redirect_url': url_for('admin_home'),
-                'message': f"Selamat Datang {user['name']}!"
-            })
-        else:
-            return jsonify({
-                'success': True,
-                'redirect_url': url_for('homepage'),
-                'message': f"Selamat Datang {user['name']}!"
-            })
-    
-    return render_template('login.html')
+        session['role'] = user.get('role')
+        session['nama'] = user.get('name')
+
+        # Respond with redirect URL for frontend
+        if user.get('role') == 'admin':
+            return jsonify({'success': True, 'redirect_url': url_for('admin_home'), 'message': f"Selamat Datang {user.get('name')}!"})
+        return jsonify({'success': True, 'redirect_url': url_for('homepage'), 'message': f"Selamat Datang {user.get('name')}!"})
+
+    # GET -> render unified auth page
+    return render_template('logreg.html')
 
 # Route untuk halaman register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    # Handle POST from AJAX or regular form
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        role = request.form.get('role')
-        
-        # Validasi data
-        if not name or not email or not password or not confirm_password:
-            return render_template('register.html', error="Semua field harus diisi")
-        
-        if password != confirm_password:
-            return render_template('register.html', error="Password tidak cocok")
-        
-        # Cek jika email sudah terdaftar
-        if db.users.find_one({'email': email}):
-            return render_template('register.html', error="Email sudah digunakan")
-        
-        # Hash password dan simpan ke database
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = {
-            'name': name,
-            'email': email,
-            'password': hashed_password,
-            'role': role if role else 'customer'  # Default role 'customer'
-        }
-        # Hash password dan simpan ke database
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = {
-        'name': name,
-        'email': email,
-        'password': hashed_password,
-        'role': role if role else 'customer'  # Default role 'customer'
-        }
-        db.users.insert_one(user)  # <-- simpan user lengkap
+        data = request.get_json(silent=True) or request.form
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        role = data.get('role') or 'customer'
 
-        return redirect(url_for('login'))  # Redirect ke halaman login setelah registrasi berhasil
-    return render_template('register.html')
+        # Validation
+        if not name or not email or not password or not confirm_password:
+            return jsonify({'success': False, 'message': 'Semua field harus diisi'})
+        if password != confirm_password:
+            return jsonify({'success': False, 'message': 'Password tidak cocok'})
+        if db.users.find_one({'email': email}):
+            return jsonify({'success': False, 'message': 'Email sudah digunakan'})
+
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = {'name': name, 'email': email, 'password': hashed_password, 'role': role}
+        db.users.insert_one(user)
+
+        return jsonify({'success': True, 'message': 'Registrasi berhasil! Silakan login.'})
+
+    # GET -> render unified auth page
+    return render_template('logreg.html')
+@app.route('/auth')
+def auth():
+    # Render unified auth page (contains both login & register panels)
+    return render_template('logreg.html')
+
+def _valid_phone(phone: str) -> bool:
+    """Basic server-side phone number validation (Indonesia-centric)."""
+    import re
+    if not phone:
+        return False
+    # allow +62 or 0 at start, digits and optional spaces/dashes
+    phone = phone.replace(' ', '').replace('-', '')
+    return re.match(r'^(?:\+62|0)\d{8,15}$', phone) is not None
 
 @app.route('/')
 def homepage():
@@ -208,10 +290,9 @@ def submit_review():
 
 @app.route("/product")
 def product():
-    if not session.get("logged_in"):
-        return redirect(url_for("login"))
+    # Allow guests to view the product listing. Adding to cart requires login.
     products = db.products.find()
-    return render_template("product.html", products=products)
+    return render_template("product.html", products=products, logged_in=session.get('logged_in', False))
 
 @app.route('/filter_products', methods=['GET'])
 def filter_products():
@@ -271,6 +352,10 @@ def search_products():
 @app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
     try:
+        # Enforce login on server side for adding to cart
+        if not session.get('logged_in'):
+            return jsonify({'success': False, 'message': 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.'}), 401
+
         data = request.json or {}
         owner = _get_cart_owner()
 
@@ -604,11 +689,176 @@ def update_income_and_top_products():
     # Function to update total income and top products on order status update
     pass
 
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if not session.get('logged_in') or not session.get('user_id'):
+        return jsonify({'success': False, 'message': 'Not authenticated'}), 401
+
+    user_id = session.get('user_id')
+    data = request.get_json() or {}
+    current = data.get('current_password')
+    new = data.get('new_password')
+
+    if not current or not new:
+        return jsonify({'success': False, 'message': 'Missing fields'}), 400
+
+    # basic new password validation
+    if len(new) < 6:
+        return jsonify({'success': False, 'message': 'Password harus minimal 6 karakter'}), 400
+
+    try:
+        user = db.users.find_one({'_id': ObjectId(user_id)})
+        if not user:
+            return jsonify({'success': False, 'message': 'User tidak ditemukan'}), 404
+
+        # verify current password
+        if not bcrypt.check_password_hash(user['password'], current):
+            return jsonify({'success': False, 'message': 'Password saat ini salah'}), 400
+
+        # update password
+        hashed = bcrypt.generate_password_hash(new).decode('utf-8')
+        db.users.update_one({'_id': ObjectId(user_id)}, {'$set': {'password': hashed}})
+        return jsonify({'success': True, 'message': 'Password berhasil diubah'})
+    except Exception as e:
+        print(f"Error changing password: {e}")
+        return jsonify({'success': False, 'message': 'Terjadi kesalahan'}), 500
+
 # Route Logout
 @app.route('/logout')
 def logout():
+    # Clear server-side session and redirect to homepage so user lands
+    # on the public home page in a logged-out state. Add a query flag
+    # the frontend can use for any additional client-side cleanup.
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('homepage', logged_out=1))
+
+
+# Route Profile - lihat dan update (hanya name dan phone/no_telp)
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    # Pastikan user sudah login
+    if not session.get('logged_in') or not session.get('user_id'):
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')
+    try:
+        user = db.users.find_one({'_id': ObjectId(user_id)})
+    except Exception:
+        user = None
+
+    if request.method == 'POST':
+        # support both normal form post and AJAX multipart/form-data
+        name = request.form.get('name', '').strip()
+        phone = request.form.get('phone', '').strip()
+
+        if not name:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': 'Nama tidak boleh kosong'}), 400
+            return render_template('profile.html', user=user, error='Nama tidak boleh kosong')
+            
+        # Handle avatar upload
+        update_data = {
+            'name': name,
+            'phone': phone
+        }
+
+        try:
+            # Update user data in database
+            result = db.users.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': update_data}
+            )
+            
+            if result.modified_count > 0:
+                # Get updated user data
+                updated_user = db.users.find_one({'_id': ObjectId(user_id)})
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({
+                        'success': True,
+                        'message': 'Profil berhasil diperbarui'
+                    })
+                return render_template('profile.html', user=updated_user, message='Profil berhasil diperbarui')
+            else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({
+                        'success': False,
+                        'message': 'Tidak ada perubahan yang disimpan'
+                    }), 400
+                return render_template('profile.html', user=user, error='Tidak ada perubahan yang disimpan')
+                
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': False,
+                    'message': 'Terjadi kesalahan saat menyimpan profil'
+                }), 500
+            return render_template('profile.html', user=user, error='Terjadi kesalahan saat menyimpan profil')
+        if 'avatar' in request.files:
+            file = request.files['avatar']
+            if file.filename:
+                avatar_path = save_avatar(file)
+
+        # Update user data
+        try:
+            # Update user data in database
+            result = db.users.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': update_data}
+            )
+            
+            if result.modified_count > 0:
+                # Refresh user data
+                user = db.users.find_one({'_id': ObjectId(user_id)})
+                return render_template('profile.html', user=user, message='Profile berhasil diperbarui')
+            else:
+                return render_template('profile.html', user=user, error='Tidak ada perubahan yang disimpan')
+                
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            return render_template('profile.html', user=user, error='Terjadi kesalahan saat menyimpan profil')
+
+        update_data = {'name': name}
+
+        # validate phone if provided
+        if phone:
+            if not _valid_phone(phone):
+                msg = 'Format nomor telepon tidak valid'
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({'success': False, 'message': msg}), 400
+                return render_template('profile.html', user=user, error=msg)
+            update_data['phone'] = phone
+
+        # handle avatar upload
+        avatar = request.files.get('avatar')
+        if avatar and allowed_file(avatar.filename):
+            try:
+                filename = secure_filename(avatar.filename)
+                # make filename unique
+                unique_name = f"{uuid.uuid4().hex}_{filename}"
+                save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
+                avatar.save(save_path)
+                # store relative path
+                update_data['avatar_url'] = os.path.join('static/uploads', unique_name).replace('\\', '/')
+            except Exception as e:
+                print(f"Error saving avatar: {e}")
+
+        try:
+            db.users.update_one({'_id': ObjectId(user_id)}, {'$set': update_data})
+            session['nama'] = name
+            user = db.users.find_one({'_id': ObjectId(user_id)})
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': 'Profil berhasil diperbarui'})
+            return render_template('profile.html', user=user, message='Profil berhasil diperbarui')
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': 'Gagal memperbarui profil'}), 500
+            return render_template('profile.html', user=user, error='Gagal memperbarui profil')
+
+    # GET: tampilkan data user
+    return render_template('profile.html', user=user)
 
 # Route untuk membuat akun admin pertama jika belum ada
 @app.route('/create_first_admin', methods=['GET'])
@@ -625,4 +875,7 @@ def create_first_admin():
     return "Admin sudah ada!"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # On Windows, the reloader can spawn additional threads/sockets that
+    # sometimes cause OSError: [WinError 10038] in managed terminals.
+    # Disable the automatic reloader when running from this environment.
+    app.run(debug=True, use_reloader=False)
