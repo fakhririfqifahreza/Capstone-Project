@@ -171,10 +171,10 @@ navbarToggler.addEventListener("click", () => {
 // hide it as a safety measure
 if (sessionStorage.getItem("logged_in") !== "true") {
   const profileLinks = document.querySelectorAll('a[href*="/profile"]');
-  profileLinks.forEach(link => {
-    const navItem = link.closest('.nav-item');
+  profileLinks.forEach((link) => {
+    const navItem = link.closest(".nav-item");
     if (navItem) {
-      navItem.style.display = 'none';
+      navItem.style.display = "none";
     }
   });
 }
