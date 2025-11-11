@@ -161,24 +161,22 @@ navbarToggler.addEventListener("click", () => {
 });
 
 // Mengubah tampilan navbar berdasarkan status login
-if (sessionStorage.getItem("logged_in") === "true") {
-  // Jika user sudah login, ganti navbar (guarded)
-  const nLogin = document.querySelector(".nav-login");
-  const nRegister = document.querySelector(".nav-register");
-  if (nLogin) {
-    nLogin.innerHTML = "Logout";
-    nLogin.setAttribute("href", "/logout");
-  }
-  if (nRegister) nRegister.style.display = "none";
-} else {
-  // Jika user belum login, tampilkan Login dan Register
-  const nLogin = document.querySelector(".nav-login");
-  const nRegister = document.querySelector(".nav-register");
-  if (nLogin) {
-    nLogin.innerHTML = "Login";
-    nLogin.setAttribute("href", "/login");
-  }
-  if (nRegister) nRegister.style.display = "block";
+// This code is now redundant since we use server-side Jinja2 templates
+// but we keep it for client-side consistency checks
+
+// NOTE: The navbar visibility is controlled by Jinja2 templates based on server session.
+// This client-side code is only for immediate UI feedback and should not override server logic.
+
+// If somehow profile link exists but user is not logged in (shouldn't happen),
+// hide it as a safety measure
+if (sessionStorage.getItem("logged_in") !== "true") {
+  const profileLinks = document.querySelectorAll('a[href*="/profile"]');
+  profileLinks.forEach(link => {
+    const navItem = link.closest('.nav-item');
+    if (navItem) {
+      navItem.style.display = 'none';
+    }
+  });
 }
 
 // product

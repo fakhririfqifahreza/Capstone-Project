@@ -71,11 +71,21 @@
       <!-- Invoice Header -->
       <div class="invoice-header">
         <div>
-          <h3>👤 {{ orders[0].nama if orders else "No User" }}</h3>
+          <h3>👤 {{ user.name if user and user.name else "No User" }}</h3>
           <h5>ADDRESS</h5>
           <div class="address-box">
-            {{ orders[0].alamat if orders else "No Address" }}
+            {{ user.address if user and user.address else (orders[0].alamat if
+            orders and orders[0].alamat else "No Address") }}
           </div>
+          {% if not user or not user.address %}
+          <small class="text-warning mt-2 d-block">
+            <i class="bi bi-exclamation-triangle"></i>
+            Please update your address in
+            <a href="{{ url_for('profile') }}" class="text-warning"
+              ><u>Profile Settings</u></a
+            >
+          </small>
+          {% endif %}
         </div>
         <div>
           <h3>TOTAL INVOICE</h3>

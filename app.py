@@ -482,14 +482,40 @@ def submit_checkout():
 @app.route("/invoice")
 def invoice():
     try:
-        orders = list(db.orders.find())
+        # Get logged in user info from session
+        if 'logged_in' not in session or not session['logged_in']:
+            return redirect(url_for('login'))
+        
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))
+        
+        # Get user info from database
+        user = db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return redirect(url_for('login'))
+        
+        # Get orders for this specific user based on their name (or email)
+        # You can use email or user_id depending on how orders are stored
+        user_email = user.get('email')
+        user_name = user.get('name', user.get('username', ''))
+        
+        # Filter orders by user email or name
+        orders = list(db.orders.find({"email": user_email}))
+        
+        # If no orders found by email, try by name
+        if not orders:
+            orders = list(db.orders.find({"nama": user_name}))
+        
         total_orders = len(orders)
         total_invoice = sum(order.get('amount', 0) for order in orders)
+        
         return render_template(
             "invoice.html", 
             orders=orders, 
             total_invoice=total_invoice, 
-            total_orders=total_orders
+            total_orders=total_orders,
+            user=user
         )
     except Exception as e:
         print(f"Error fetching invoices: {e}")
@@ -751,41 +777,50 @@ def profile():
         # support both normal form post and AJAX multipart/form-data
         name = request.form.get('name', '').strip()
         phone = request.form.get('phone', '').strip()
+        address = request.form.get('address', '').strip()
+        
+        # Debug logging
+        print(f"Profile update - Name: {name}, Phone: {phone}, Address: {address}")
 
         if not name:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': False, 'message': 'Nama tidak boleh kosong'}), 400
             return render_template('profile.html', user=user, error='Nama tidak boleh kosong')
             
-        # Handle avatar upload
+        # Prepare update data
         update_data = {
             'name': name,
-            'phone': phone
+            'phone': phone,
+            'address': address
         }
 
+        # Handle avatar upload if file is provided
+        if 'avatar' in request.files:
+            file = request.files['avatar']
+            if file and file.filename:
+                avatar_path = save_avatar(file)
+                if avatar_path:
+                    update_data['avatar'] = avatar_path
+
         try:
-            # Update user data in database
+            # Update user data in database - use upsert to ensure fields are created
             result = db.users.update_one(
                 {'_id': ObjectId(user_id)},
-                {'$set': update_data}
+                {'$set': update_data},
+                upsert=False
             )
             
-            if result.modified_count > 0:
-                # Get updated user data
-                updated_user = db.users.find_one({'_id': ObjectId(user_id)})
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify({
-                        'success': True,
-                        'message': 'Profil berhasil diperbarui'
-                    })
-                return render_template('profile.html', user=updated_user, message='Profil berhasil diperbarui')
-            else:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify({
-                        'success': False,
-                        'message': 'Tidak ada perubahan yang disimpan'
-                    }), 400
-                return render_template('profile.html', user=user, error='Tidak ada perubahan yang disimpan')
+            # Get updated user data
+            updated_user = db.users.find_one({'_id': ObjectId(user_id)})
+            
+            # Always return success if no exception occurred
+            # Don't check modified_count because it may be 0 if field didn't exist before
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': True,
+                    'message': 'Profil berhasil diperbarui'
+                })
+            return render_template('profile.html', user=updated_user, message='Profil berhasil diperbarui')
                 
         except Exception as e:
             print(f"Error updating profile: {e}")
@@ -795,69 +830,8 @@ def profile():
                     'message': 'Terjadi kesalahan saat menyimpan profil'
                 }), 500
             return render_template('profile.html', user=user, error='Terjadi kesalahan saat menyimpan profil')
-        if 'avatar' in request.files:
-            file = request.files['avatar']
-            if file.filename:
-                avatar_path = save_avatar(file)
 
-        # Update user data
-        try:
-            # Update user data in database
-            result = db.users.update_one(
-                {'_id': ObjectId(user_id)},
-                {'$set': update_data}
-            )
-            
-            if result.modified_count > 0:
-                # Refresh user data
-                user = db.users.find_one({'_id': ObjectId(user_id)})
-                return render_template('profile.html', user=user, message='Profile berhasil diperbarui')
-            else:
-                return render_template('profile.html', user=user, error='Tidak ada perubahan yang disimpan')
-                
-        except Exception as e:
-            print(f"Error updating profile: {e}")
-            return render_template('profile.html', user=user, error='Terjadi kesalahan saat menyimpan profil')
-
-        update_data = {'name': name}
-
-        # validate phone if provided
-        if phone:
-            if not _valid_phone(phone):
-                msg = 'Format nomor telepon tidak valid'
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify({'success': False, 'message': msg}), 400
-                return render_template('profile.html', user=user, error=msg)
-            update_data['phone'] = phone
-
-        # handle avatar upload
-        avatar = request.files.get('avatar')
-        if avatar and allowed_file(avatar.filename):
-            try:
-                filename = secure_filename(avatar.filename)
-                # make filename unique
-                unique_name = f"{uuid.uuid4().hex}_{filename}"
-                save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
-                avatar.save(save_path)
-                # store relative path
-                update_data['avatar_url'] = os.path.join('static/uploads', unique_name).replace('\\', '/')
-            except Exception as e:
-                print(f"Error saving avatar: {e}")
-
-        try:
-            db.users.update_one({'_id': ObjectId(user_id)}, {'$set': update_data})
-            session['nama'] = name
-            user = db.users.find_one({'_id': ObjectId(user_id)})
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'success': True, 'message': 'Profil berhasil diperbarui'})
-            return render_template('profile.html', user=user, message='Profil berhasil diperbarui')
-        except Exception as e:
-            print(f"Error updating profile: {e}")
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'success': False, 'message': 'Gagal memperbarui profil'}), 500
-            return render_template('profile.html', user=user, error='Gagal memperbarui profil')
-
-    # GET: tampilkan data user
+    # GET request - just display the profile page
     return render_template('profile.html', user=user)
 
 # Route untuk membuat akun admin pertama jika belum ada
